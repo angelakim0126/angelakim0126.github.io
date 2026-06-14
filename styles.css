@@ -57,7 +57,7 @@ a:hover { text-decoration: underline; }
 h1 {
   font-size: clamp(2.4rem, 6vw, 4rem);
   margin: 0 0 16px;
-  background: linear-gradient(90deg, #2ec4b6, #6b5ce7, #ff7a45);
+  background: linear-gradient(90deg, #38bdf8, #3b82f6, #6366f1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
