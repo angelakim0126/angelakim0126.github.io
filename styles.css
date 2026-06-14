@@ -186,6 +186,13 @@ footer {
   font-size: 0.9rem;
 }
 footer a { color: var(--accent); font-weight: 600; }
+.disclaimer {
+  font-size: 0.78rem;
+  opacity: 0.65;
+  max-width: 640px;
+  margin: 8px auto 0;
+  line-height: 1.5;
+}
 
 /* ---------- Responsive tweaks ---------- */
 @media (max-width: 480px) {
