@@ -1,12 +1,12 @@
 :root {
-  --bg-1: #fff1f7;
-  --bg-2: #e8f3ff;
-  --bg-3: #f4ecff;
-  --ink: #2a2350;
-  --ink-soft: #5e578a;
-  --accent: #ff6fae;
-  --shadow: 0 12px 30px rgba(60, 40, 120, 0.12);
-  --shadow-hover: 0 18px 40px rgba(60, 40, 120, 0.22);
+  --bg-1: #e6f7ff;
+  --bg-2: #f0ebff;
+  --bg-3: #fff4e6;
+  --ink: #1f2348;
+  --ink-soft: #565a82;
+  --accent: #6b5ce7;
+  --shadow: 0 12px 30px rgba(40, 50, 120, 0.12);
+  --shadow-hover: 0 18px 40px rgba(40, 50, 120, 0.22);
   --radius: 22px;
 }
 
@@ -57,7 +57,7 @@ a:hover { text-decoration: underline; }
 h1 {
   font-size: clamp(2.4rem, 6vw, 4rem);
   margin: 0 0 16px;
-  background: linear-gradient(90deg, #ff6fae, #9b6cff, #4f9dff);
+  background: linear-gradient(90deg, #2ec4b6, #6b5ce7, #ff7a45);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
