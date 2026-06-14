@@ -174,6 +174,9 @@ main {
 .card--pi-iris::before {
   background: linear-gradient(135deg, #ffe0f0 0%, #e8d6ff 50%, #d6e9ff 100%);
 }
+.card--cosmic::before {
+  background: linear-gradient(135deg, #c8ecff 0%, #d8d0ff 50%, #ffe6f4 100%);
+}
 .card--pi-george::before {
   background: linear-gradient(135deg, #fff3c4 0%, #ffd6a8 100%);
 }
