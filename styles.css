@@ -94,6 +94,12 @@ main {
   gap: 24px;
 }
 
+/* Reorder cards by whose mode is active — kid's own games come first */
+body.mode-iris  .card[data-for="iris"]   { order: 0; }
+body.mode-iris  .card[data-for="george"] { order: 1; }
+body.mode-george .card[data-for="george"] { order: 0; }
+body.mode-george .card[data-for="iris"]   { order: 1; }
+
 .card {
   display: flex;
   flex-direction: column;

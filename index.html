@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Angela's Workshop — fun things for my kids</title>
-  <link rel="stylesheet" href="styles.css?v=20260615a" />
+  <link rel="stylesheet" href="styles.css?v=20260615b" />
 </head>
 <body class="mode-iris">
   <div class="mode-picker" role="tablist" aria-label="Whose view?">
@@ -27,7 +27,7 @@
   <main>
     <section class="cards">
 
-      <a class="card card--coloring" href="https://angelakim0126.github.io/wings-of-fire-coloring/">
+      <a class="card card--coloring" data-for="iris" href="https://angelakim0126.github.io/wings-of-fire-coloring/">
         <div class="card__emoji">🎨</div>
         <h2>Wings of Fire Coloring</h2>
         <p class="card__for">For Iris</p>
@@ -35,7 +35,7 @@
         <span class="card__cta">Open →</span>
       </a>
 
-      <a class="card card--snake" href="https://angelakim0126.github.io/dragon-math-quest/">
+      <a class="card card--snake" data-for="iris" href="https://angelakim0126.github.io/dragon-math-quest/">
         <div class="card__emoji">🐉</div>
         <h2>Dragon Math Quest</h2>
         <p class="card__for">For Iris</p>
@@ -43,7 +43,7 @@
         <span class="card__cta">Play →</span>
       </a>
 
-      <a class="card card--pi-iris" href="https://angelakim0126.github.io/pi-iris/">
+      <a class="card card--pi-iris" data-for="iris" href="https://angelakim0126.github.io/pi-iris/">
         <div class="card__emoji">🦄</div>
         <h2>Iris's Pi Quest</h2>
         <p class="card__for">For Iris</p>
@@ -51,7 +51,7 @@
         <span class="card__cta">Start →</span>
       </a>
 
-      <a class="card card--cosmic" href="https://angelakim0126.github.io/iris-math/">
+      <a class="card card--cosmic" data-for="iris" href="https://angelakim0126.github.io/iris-math/">
         <div class="card__emoji">🚀</div>
         <h2>Cosmic Math</h2>
         <p class="card__for">For Iris</p>
@@ -59,7 +59,7 @@
         <span class="card__cta">Blast off →</span>
       </a>
 
-      <a class="card card--pi-george" href="https://angelakim0126.github.io/pi/">
+      <a class="card card--pi-george" data-for="george" href="https://angelakim0126.github.io/pi/">
         <div class="card__emoji">π</div>
         <h2>Pi Digits Challenge</h2>
         <p class="card__for">For George</p>
@@ -67,7 +67,7 @@
         <span class="card__cta">Begin →</span>
       </a>
 
-      <a class="card card--storm" href="https://angelakim0126.github.io/geometry-storm/">
+      <a class="card card--storm" data-for="george" href="https://angelakim0126.github.io/geometry-storm/">
         <div class="card__emoji">🛸</div>
         <h2>Geometry Storm</h2>
         <p class="card__for">For George</p>
@@ -85,7 +85,7 @@
 
   <script>
     (function () {
-      var STORE = 'hub-prefs-v1';
+      var STORE = 'hub-prefs-v2';
       var defaults = {
         mode: 'iris',
         titleIris: "Angela's Workshop",
