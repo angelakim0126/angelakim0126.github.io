@@ -180,6 +180,25 @@ main {
 .card--pi-george::before {
   background: linear-gradient(135deg, #fff3c4 0%, #ffd6a8 100%);
 }
+.card--storm::before {
+  background: linear-gradient(135deg, #1a1d3d 0%, #2d1547 50%, #0a0e2a 100%);
+}
+.card--storm,
+.card--storm .card__desc,
+.card--storm .card__for {
+  color: #e8ecff;
+}
+.card--storm h2 {
+  background: linear-gradient(90deg, #7df9ff, #ff5dd2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card--storm .card__cta {
+  background: rgba(125, 249, 255, 0.18);
+  color: #7df9ff;
+  border: 1px solid rgba(125, 249, 255, 0.4);
+}
 
 /* ---------- Footer ---------- */
 footer {
