@@ -195,6 +195,25 @@ main {
 .card--storm::before {
   background: linear-gradient(135deg, #1a1d3d 0%, #2d1547 50%, #0a0e2a 100%);
 }
+.card--word-smart::before {
+  background: linear-gradient(135deg, #0e2a3d 0%, #1b3a5b 50%, #0a1a2a 100%);
+}
+.card--word-smart,
+.card--word-smart .card__desc,
+.card--word-smart .card__for {
+  color: #e8ecff;
+}
+.card--word-smart h2 {
+  background: linear-gradient(90deg, #fa5400, #ffb347);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card--word-smart .card__cta {
+  background: rgba(250, 84, 0, 0.18);
+  color: #fa5400;
+  border: 1px solid rgba(250, 84, 0, 0.4);
+}
 .card--storm,
 .card--storm .card__desc,
 .card--storm .card__for {
