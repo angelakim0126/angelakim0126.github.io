@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>Iris's Lion King Math Quest</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🦁%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --gold:#f6b73c; --gold-2:#e8902a; --sun:#ffcf5a;
+    --grass-1:#c8a24a; --grass-2:#9c7b2e;
+    --ink:#3a2410; --cream:#fff7e6;
+    --rock-1:#7a5230; --rock-2:#4e3320;
+    --out-1:#3b3f33; --out-2:#23271d;
+    --good:#5fc36a; --bad:#e25b4a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #ffe39a 0%, transparent 60%),
+      linear-gradient(180deg,#ffd97a 0%, #f6b73c 35%, #c8902f 100%);
+    background-attachment:fixed;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .screen{display:none;min-height:100vh;width:100%}
+  .screen.active{display:block}
+  .screen.overlay{
+    display:none;position:fixed;inset:0;z-index:50;
+    background:rgba(40,24,8,.78);backdrop-filter:blur(4px);
+  }
+  .screen.overlay.active{display:flex;align-items:center;justify-content:center}
+  .screen-inner{
+    max-width:680px;margin:0 auto;padding:26px 20px 60px;text-align:center;
+  }
+  .overlay .screen-inner{
+    background:var(--cream);border-radius:24px;box-shadow:0 24px 60px rgba(0,0,0,.4);
+    padding:30px 26px;max-width:440px;border:3px solid var(--gold-2);
+  }
+
+  /* ===== Start screen ===== */
+  .title-name{font-size:1.05rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rock-2);font-weight:bold;opacity:.85}
+  h1{
+    font-size:clamp(2rem,7vw,3.3rem);line-height:1.05;margin:.1em 0 .15em;
+    color:var(--ink);text-shadow:0 2px 0 #fff6, 0 4px 14px rgba(120,60,0,.25);
+  }
+  h1 .crown{color:#c0392b}
+  .subtitle{font-size:1.02rem;max-width:30ch;margin:.3em auto 1.1em;color:#5a3a14}
+
+  .lion-preview{
+    background:linear-gradient(180deg,#ffe7a6,#f3b94f);
+    border:3px solid var(--gold-2);border-radius:20px;
+    padding:8px;margin:0 auto 18px;max-width:300px;
+    box-shadow:inset 0 2px 12px rgba(255,255,255,.4);
+  }
+  canvas#preview-canvas{width:100%;height:auto;display:block;border-radius:12px}
+
+  .picker-section{margin:0 auto 16px;max-width:560px}
+  .picker-label{font-weight:bold;text-transform:uppercase;letter-spacing:.08em;font-size:.82rem;color:#6b4416;margin-bottom:8px}
+
+  .picker{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .chip{
+    cursor:pointer;border:2px solid #00000022;border-radius:14px;
+    background:#fff8ea;padding:8px 12px;font:inherit;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;gap:2px;min-width:78px;
+    transition:transform .08s, box-shadow .12s, border-color .12s;
+  }
+  .chip:hover{transform:translateY(-2px)}
+  .chip.selected{border-color:var(--gold-2);background:#fff;box-shadow:0 6px 18px rgba(232,144,42,.35);transform:translateY(-2px)}
+  .chip .chip-emoji{font-size:1.6rem;line-height:1}
+  .chip .chip-name{font-weight:bold;font-size:.88rem}
+  .chip .chip-desc{font-size:.7rem;opacity:.7}
+  .chip.locked{opacity:.45;filter:grayscale(.6);cursor:not-allowed}
+
+  .big-btn{
+    cursor:pointer;border:none;border-radius:50px;font:inherit;font-weight:bold;
+    font-size:1.25rem;color:#fff;padding:14px 38px;margin:6px auto 8px;
+    background:linear-gradient(180deg,#ff9d3c,#e8721a);
+    box-shadow:0 8px 22px rgba(200,90,10,.45);
+    transition:transform .08s, box-shadow .12s;
+  }
+  .big-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(200,90,10,.5)}
+  .big-btn:active{transform:translateY(1px)}
+  .text-btn{cursor:pointer;background:none;border:none;color:#7a4d1c;font:inherit;text-decoration:underline;margin-top:10px;font-size:.95rem}
+  .small-btn{cursor:pointer;border:none;border-radius:10px;background:var(--gold-2);color:#fff;font:inherit;font-weight:bold;padding:7px 14px}
+
+  .leaderboard-card{
+    background:#fff8ea;border:2px solid #e8902a55;border-radius:16px;
+    padding:12px 14px;margin:18px auto 0;max-width:460px;text-align:left;
+  }
+  .lb-header{display:flex;align-items:center;justify-content:space-between}
+  .leaderboard-card h3{font-size:1.05rem;color:#7a4d1c}
+  .lb-clear{cursor:pointer;background:none;border:none;color:#a9783c;font-size:.78rem;text-decoration:underline}
+  .lb-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-top:1px dashed #d9b87a}
+  .lb-row:first-child{border-top:none}
+  .lb-rank{width:1.4em;font-weight:bold;color:#c0392b}
+  .lb-emoji{font-size:1.1rem}
+  .lb-name{flex:1;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lb-meta{font-size:.72rem;opacity:.7}
+  .lb-score{font-weight:bold;color:#7a4d1c}
+  .lb-empty{opacity:.6;font-size:.9rem;padding:6px 2px}
+
+  details.how-to-play{margin:18px auto 0;max-width:460px;text-align:left;background:#fff8ea99;border-radius:14px;padding:6px 14px;border:1px solid #e8902a33}
+  details.how-to-play summary{cursor:pointer;font-weight:bold;padding:8px 0;color:#7a4d1c}
+  details.how-to-play ul{margin:6px 0 12px;padding-left:18px;line-height:1.6;font-size:.92rem}
+
+  /* ===== Game screen ===== */
+  .hud{
+    display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;
+    padding:8px 10px;background:#3a2410ee;color:#ffe7a6;position:sticky;top:0;z-index:5;
+  }
+  .hud-item{display:flex;flex-direction:column;align-items:center;line-height:1;min-width:48px}
+  .hud-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;opacity:.75}
+  .hud-value{font-size:1.15rem;font-weight:bold;color:#ffcf5a}
+  .hud-hearts{font-size:1.05rem;letter-spacing:1px}
+  .hud-btn{cursor:pointer;border:none;border-radius:10px;background:#ffffff22;color:#ffe7a6;font:inherit;font-weight:bold;padding:6px 10px;font-size:.85rem}
+  .hud-btn-pause{background:#e8721a}
+
+  .math-banner{
+    background:linear-gradient(180deg,#fff4d6,#ffe2a3);
+    border-bottom:3px solid var(--gold-2);
+    padding:7px 12px;text-align:center;position:sticky;top:0;z-index:4;
+  }
+  .math-banner-row{display:flex;align-items:center;justify-content:center;gap:10px}
+  .math-label{font-size:.8rem;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;color:#9c5a17}
+  .math-timer{font-weight:bold;color:#c0392b;font-variant-numeric:tabular-nums}
+  .math-timer.countdown{animation:pulse .6s infinite alternate}
+  @keyframes pulse{to{transform:scale(1.18)}}
+  .math-problem{display:block;font-size:clamp(1.25rem,5vw,1.9rem);font-weight:bold;color:var(--ink);margin-top:2px}
+
+  .canvas-wrap{position:relative;width:100%;max-width:1100px;margin:0 auto;touch-action:none}
+  canvas#game-canvas{display:block;width:100%;height:auto;background:#c2a04a;border-bottom:4px solid #6b4416}
+  .joystick{position:absolute;left:18px;bottom:18px;width:120px;height:120px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff44;display:none;touch-action:none}
+  .joystick.show{display:block}
+  .joystick-stick{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:#ffffffaa;border:2px solid #fff}
+
+  .controls-hint{text-align:center;padding:8px;font-size:.85rem;color:#5a3a14}
+  kbd{background:#fff;border:1px solid #b98;border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-family:inherit;font-size:.8rem}
+
+  .toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);z-index:30;background:#3a2410ee;color:#ffe7a6;padding:10px 20px;border-radius:40px;font-weight:bold;opacity:0;transition:opacity .25s, top .25s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  .toast.show{opacity:1;top:96px}
+  .toast.good{background:#2f7d3a}
+  .toast.bad{background:#b03a2e}
+
+  /* game over */
+  .final-stats{display:flex;justify-content:center;gap:18px;margin:14px 0}
+  .stat{display:flex;flex-direction:column;align-items:center}
+  .stat-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#9c5a17}
+  .stat-val{font-size:1.6rem;font-weight:bold;color:var(--ink)}
+  .new-best{color:#c0392b;font-weight:bold;font-size:1.1rem}
+  .hidden{display:none!important}
+  .lb-name-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:8px 0}
+  .lb-name-row input{padding:8px 10px;border-radius:10px;border:2px solid #d9b87a;font:inherit}
+
+  footer.page-footer{text-align:center;padding:20px 16px 40px;color:#6b4416;font-size:.8rem}
+  .dedication{font-size:.95rem;margin-bottom:8px}
+  .dedication span{font-weight:bold;color:#c0392b}
+  .disclaimer{max-width:60ch;margin:0 auto;opacity:.7;line-height:1.5}
+  .back-hub{display:inline-block;margin-top:10px;color:#7a4d1c}
+</style>
+</head>
+<body>
+
+<!-- ===== START SCREEN ===== -->
+<section id="start-screen" class="screen active">
+  <div class="screen-inner">
+    <p class="title-name">Iris's</p>
+    <h1>Lion King <span class="crown">✦</span> Math Quest</h1>
+    <p class="subtitle">Pick your lion, roam the Pride Lands, eat animals & answer math. Don't get eaten!</p>
+
+    <div class="lion-preview" aria-hidden="true">
+      <canvas id="preview-canvas" width="300" height="180"></canvas>
+    </div>
+
+    <div class="picker-section">
+      <p class="picker-label">Which character?</p>
+      <div id="lion-picker" class="picker" role="radiogroup" aria-label="Pick your lion"></div>
+    </div>
+
+    <div class="picker-section">
+      <p class="picker-label">Which land?</p>
+      <div id="land-picker" class="picker" role="radiogroup" aria-label="Pick your land"></div>
+    </div>
+
+    <div class="picker-section">
+      <p class="picker-label">Math level</p>
+      <div id="diff-picker" class="picker" role="radiogroup" aria-label="Math difficulty"></div>
+    </div>
+
+    <button id="start-btn" class="big-btn">Start the Hunt ✦</button>
+
+    <div class="leaderboard-card">
+      <div class="lb-header">
+        <h3>🏆 Top Lions</h3>
+        <button id="clear-lb-btn" class="lb-clear" title="Clear leaderboard">clear</button>
+      </div>
+      <div id="start-leaderboard"></div>
+    </div>
+
+    <details class="how-to-play">
+      <summary>How to play</summary>
+      <ul>
+        <li>🎮 <strong>Move</strong> with arrow keys, WASD, or drag/touch on iPad.</li>
+        <li>🐢 <strong>Eat other animals</strong> (turtles, fish, gazelles) for points and to grow.</li>
+        <li>🦁 <strong>Pounce smaller lions</strong> — but run from ones BIGGER than you and from hyenas!</li>
+        <li>🧮 A <strong>math problem</strong> pops up with FOUR answer stones (1 right, 3 wrong). Eat the RIGHT one to LEVEL UP and grow big!</li>
+        <li>❤️ Eating a wrong answer or getting caught costs a heart. Lose all hearts and it's game over.</li>
+        <li>🌀 The edges <strong>wrap around</strong> — leave one side, appear on the other.</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<!-- ===== GAME SCREEN ===== -->
+<section id="game-screen" class="screen">
+  <div class="hud">
+    <div class="hud-item"><span class="hud-label">Score</span><span id="hud-score" class="hud-value">0</span></div>
+    <div class="hud-item"><span class="hud-label">Lion Size</span><span id="hud-size" class="hud-value">1</span></div>
+    <div class="hud-item"><span class="hud-label">Math Lv</span><span id="hud-level" class="hud-value">1</span></div>
+    <div class="hud-item"><span class="hud-label">Hearts</span><span id="hud-hearts" class="hud-value hud-hearts">❤️❤️❤️</span></div>
+    <div class="hud-item"><span class="hud-label">Best</span><span id="hud-best" class="hud-value">0</span></div>
+    <div class="hud-item"><span class="hud-label">Time</span><span id="hud-timer" class="hud-value">5:00</span></div>
+    <button id="mute-btn" class="hud-btn" aria-label="Mute">🔊</button>
+    <button id="pause-btn" class="hud-btn hud-btn-pause">⏸ Pause</button>
+  </div>
+
+  <div id="math-banner" class="math-banner">
+    <div class="math-banner-row">
+      <span id="math-label" class="math-label">Roam and hunt…</span>
+      <span id="math-timer" class="math-timer"></span>
+    </div>
+    <span id="math-problem" class="math-problem">Eat animals to grow!</span>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="game-canvas"></canvas>
+    <div id="joystick" class="joystick"><div class="joystick-stick"></div></div>
+  </div>
+
+  <div class="controls-hint">
+    <p>Move with <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>, WASD, or drag on the screen · <kbd>Space</kbd> to pause</p>
+  </div>
+</section>
+
+<!-- ===== PAUSE SCREEN ===== -->
+<section id="pause-screen" class="screen overlay">
+  <div class="screen-inner">
+    <h2>Paused 🐾</h2>
+    <button id="resume-btn" class="big-btn">Resume</button><br>
+    <button id="quit-btn" class="text-btn">Back to start</button>
+  </div>
+</section>
+
+<!-- ===== GAME OVER SCREEN ===== -->
+<section id="gameover-screen" class="screen overlay">
+  <div class="screen-inner">
+    <h2 id="gameover-title">Oh no!</h2>
+    <p id="gameover-msg" class="subtitle">A bigger lion got you!</p>
+
+    <div class="final-stats">
+      <div class="stat"><span class="stat-label">Score</span><span id="final-score" class="stat-val">0</span></div>
+      <div class="stat"><span class="stat-label">Size</span><span id="final-size" class="stat-val">1</span></div>
+      <div class="stat"><span class="stat-label">Math Lv</span><span id="final-level" class="stat-val">1</span></div>
+    </div>
+
+    <p id="new-best" class="new-best hidden">🏆 NEW HIGH SCORE!</p>
+
+    <div id="lb-name-row" class="lb-name-row hidden">
+      <label for="lb-name-input">Save your score:</label>
+      <input id="lb-name-input" type="text" maxlength="16" placeholder="Your name" autocomplete="off">
+      <button id="save-score-btn" class="small-btn">Save</button>
+    </div>
+
+    <div class="leaderboard-card">
+      <h3>🏆 Top Lions</h3>
+      <div id="gameover-leaderboard"></div>
+    </div>
+
+    <button id="play-again-btn" class="big-btn">Play Again ✦</button><br>
+    <button id="home-btn" class="text-btn">Back to start</button>
+  </div>
+</section>
+
+<div id="toast" class="toast"></div>
+
+<footer class="page-footer">
+  <p class="dedication">Made with love for our brave little lion, <span>Iris</span> 🦁</p>
+  <p class="disclaimer">
+    A personal, non-commercial fan project made for one kid's amusement.
+    The Lion King is © Disney. Not affiliated with or endorsed by Disney.
+  </p>
+  <a class="back-hub" href="../">← Back to Angela's Workshop</a>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+
+  // ===== World constants =====
+  const PLAY_W = 1400, PLAY_H = 900;
+  const MATH_ANSWER_TIMEOUT_MS = 22000;
+  const MATH_ANSWER_TIMEOUT_GENIUS_MS = 40000;
+  const GAME_SECONDS = 5 * 60;
+
+  const canvas = $('game-canvas');
+  const ctx = canvas.getContext('2d');
+  const pctx = $('preview-canvas').getContext('2d');
+
+  // ===== Characters =====
+  const LIONS = [
+    { id:'simba', name:'Simba',  emoji:'🦁', desc:'Brave',   coat:'#e7a83d', mane:'#8a4a1c', mane2:'#b5651d', female:false },
+    { id:'nala',  name:'Nala',   emoji:'🐱', desc:'Swift',   coat:'#d8b06a', mane:null,      mane2:null,      female:true  },
+    { id:'kiara', name:'Kiara',  emoji:'🐯', desc:'Clever',  coat:'#ecc079', mane:null,      mane2:null,      female:true  },
+    { id:'kovu',  name:'Kovu',   emoji:'🦁', desc:'Strong',  coat:'#9c7a4a', mane:'#3a2410', mane2:'#5a3a1c', female:false },
+  ];
+
+  const LANDS = [
+    { id:'pridelands', name:'Pride Lands', emoji:'🌅', g1:'#d4ad55', g2:'#9c7b2e', sky:'#ffd97a', detail:'grass' },
+    { id:'priderock',  name:'Pride Rock',  emoji:'🪨', g1:'#a87a4e', g2:'#6e4a2c', sky:'#e8a766', detail:'rock'  },
+    { id:'outlands',   name:'Outlands',    emoji:'🌑', g1:'#5a5f4a', g2:'#33372a', sky:'#7c8466', detail:'gloom' },
+  ];
+
+  const DIFFS = [
+    { id:'times',  emoji:'✖️', name:'Times',  desc:'2× → 10×' },
+    { id:'easy',   emoji:'🐢', name:'Easy',   desc:'Within 10' },
+    { id:'medium', emoji:'🦓', name:'Medium', desc:'Within 20' },
+    { id:'hard',   emoji:'🔥', name:'Hard',   desc:'100 + ×' },
+    { id:'genius', emoji:'🧠', name:'Genius', desc:'Mathcounts' },
+  ];
+
+  // Prey "other animals" (eat for small points)
+  const PREY = [
+    {emoji:'🐢',pts:3}, {emoji:'🐟',pts:3}, {emoji:'🦓',pts:4},
+    {emoji:'🦌',pts:4}, {emoji:'🐗',pts:5}, {emoji:'🐇',pts:3},
+    {emoji:'🦡',pts:4}, {emoji:'🐹',pts:2},
+  ];
+  // Predators that are dangerous if bigger than you
+  const PRED_EMOJI = ['🦁','🐆','🐅','🦓']; // smaller lions / cats you can fight
+  const HYENA = '🐺';
+
+  // ===== State =====
+  const state = {
+    selLion: 'simba', selLand: 'pridelands', difficulty: 'hard',
+    running:false, paused:false,
+    score:0, size:1, level:1, hearts:3,
+    best: 0,
+    timeLeft: GAME_SECONDS,
+    player:null,
+    prey:[], lions:[], answers:[], particles:[], floaters:[],
+    math:null, mathDeadline:0, mathActive:false,
+    nextMathAt:0, nextPreyAt:0,
+    cam:{x:0,y:0},
+    keys:{}, pointer:null,
+    timesTable:2, timesB:1, lastGeniusKind:null,
+    muted:false,
+    lastTs:0, accTimer:0,
+    screenShake:0,
+  };
+
+  // ===== Storage =====
+  const LB_KEY = 'lkmq_leaderboard_v1';
+  const BEST_KEY = 'lkmq_best_v1';
+  function loadLB(){ try{ return JSON.parse(localStorage.getItem(LB_KEY))||[] }catch(e){return []} }
+  function saveLB(lb){ try{ localStorage.setItem(LB_KEY, JSON.stringify(lb.slice(0,8))) }catch(e){} }
+  function loadBest(){ const v=+localStorage.getItem(BEST_KEY); return isFinite(v)?v:0; }
+  function saveBest(v){ try{ localStorage.setItem(BEST_KEY, String(v)) }catch(e){} }
+
+  // ===== Math helpers (ported from Dragon Math Quest) =====
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function gcd(a,b){ while(b){[a,b]=[b,a%b];} return a; }
+  function lcm(a,b){ return (a*b)/gcd(a,b); }
+
+  function makeMathProblem(){
+    const d = state.difficulty;
+    let problemText, answer;
+
+    if (d === 'times') {
+      if (!state.timesTable) state.timesTable = 2;
+      if (!state.timesB) state.timesB = 1;
+      const a = state.timesTable, b = state.timesB;
+      answer = a * b; problemText = `${a} × ${b} = ?`;
+      state.timesB += 1;
+      if (state.timesB > 9){ state.timesB = 1; state.timesTable += 1; if (state.timesTable > 10) state.timesTable = 2; }
+    } else if (d === 'easy') {
+      const op = choice(['+','-']);
+      if (op==='+'){ const a=randInt(0,9), b=randInt(0,10-a); answer=a+b; problemText=`${a} + ${b} = ?`; }
+      else { const a=randInt(2,10), b=randInt(0,a); answer=a-b; problemText=`${a} − ${b} = ?`; }
+    } else if (d === 'medium') {
+      const op = choice(['+','-']);
+      if (op==='+'){ const a=randInt(2,18), b=randInt(1,20-a); answer=a+b; problemText=`${a} + ${b} = ?`; }
+      else { const a=randInt(5,20), b=randInt(1,a); answer=a-b; problemText=`${a} − ${b} = ?`; }
+    } else if (d === 'hard') {
+      const op = choice(['+','-','×','×']);
+      if (op==='+'){ const a=randInt(15,80), b=randInt(10,100-a); answer=a+b; problemText=`${a} + ${b} = ?`; }
+      else if (op==='-'){ const a=randInt(20,99), b=randInt(5,a-1); answer=a-b; problemText=`${a} − ${b} = ?`; }
+      else { const a=randInt(2,10), b=randInt(2,10); answer=a*b; problemText=`${a} × ${b} = ?`; }
+    } else {
+      const KINDS = [
+        'alg2step','algebra3step','div_remainder',
+        'sum_sqr','sum_cube','sum_evens','sum_odds',
+        'arith_next','geom_next','sum_factorials',
+        'fib','choose_n',
+        'factor_count','lcm_three','mod_chain','consec_int',
+        'big_mult','square_big','cube',
+        'tri_area','rect_area_per','pythag','triangle_perimeter',
+        'mean_list','median_list','count_range','count_evens',
+        'compound_pct','percent_inverse',
+        'power2','power3',
+        'mixed','digit_sum',
+        'gcf','lcm','factorial','percent',
+      ];
+      let kind, pickAttempts = 0;
+      do { kind = choice(KINDS); pickAttempts++; }
+      while (state.lastGeniusKind && kind === state.lastGeniusKind && pickAttempts < 4);
+      state.lastGeniusKind = kind;
+      switch(kind){
+        case 'alg2step': {
+          let x,a,c,b,dd,tries=0;
+          do{ x=randInt(2,14); a=randInt(3,12); c=randInt(1,a-1); b=randInt(2,30); dd=a*x+b-c*x; tries++; }
+          while((dd<=0||dd>80)&&tries<8);
+          answer=x; problemText=`${a}x + ${b} = ${c}x + ${dd}, x = ?`; break;
+        }
+        case 'sum_sqr': { const n=randInt(5,15); answer=n*(n+1)*(2*n+1)/6; problemText=`1² + 2² + … + ${n}² = ?`; break; }
+        case 'sum_cube': { const n=randInt(3,9); const s=n*(n+1)/2; answer=s*s; problemText=`1³ + 2³ + … + ${n}³ = ?`; break; }
+        case 'fib': { const n=randInt(8,16); let a=1,b=1; for(let i=3;i<=n;i++){const c=a+b;a=b;b=c;} answer=b; problemText=`F(${n}) in Fibonacci = ?`; break; }
+        case 'factor_count': {
+          const primes=[2,3,5,7,11];
+          const expSets=[[2,1],[3,1],[2,2],[1,1,1],[4,0],[2,0,1],[1,2,0,1]];
+          const exps=choice(expSets); let n=1,fc=1;
+          for(let i=0;i<exps.length&&i<primes.length;i++){ n*=Math.pow(primes[i],exps[i]); fc*=(exps[i]+1); }
+          if(n<12||n>600){ const k=randInt(12,96); let cnt=0; for(let i=1;i<=k;i++) if(k%i===0)cnt++; answer=cnt; problemText=`How many positive divisors does ${k} have?`; break; }
+          answer=fc; problemText=`How many positive divisors does ${n} have?`; break;
+        }
+        case 'big_mult': { const a=randInt(13,28),b=randInt(13,28); answer=a*b; problemText=`${a} × ${b} = ?`; break; }
+        case 'tri_area': {
+          const b=choice([4,6,8,10,12,14,16,18,20]); const h=randInt(3,18); answer=(b*h)/2;
+          if(!Number.isInteger(answer)){ answer=b*h; problemText=`Triangle area = ½ × ${b} × ${h*2} = ?`; break; }
+          problemText=`Triangle area = ½ × ${b} × ${h} = ?`; break;
+        }
+        case 'rect_area_per': {
+          const w=randInt(4,18),h=randInt(3,18);
+          if(Math.random()<0.5){ answer=w*h; problemText=`Rectangle area, w=${w}, h=${h} = ?`; }
+          else { answer=2*(w+h); problemText=`Rectangle perimeter, w=${w}, h=${h} = ?`; }
+          break;
+        }
+        case 'choose_n': {
+          const k=choice([2,3]); const n=randInt(k+2,k===2?14:10); let num=1,den=1;
+          for(let i=0;i<k;i++){num*=(n-i);den*=(i+1);} answer=num/den; problemText=`C(${n}, ${k}) = ?`; break;
+        }
+        case 'compound_pct': {
+          const pcts=[10,20,25,50,75]; const p1=choice(pcts),p2=choice(pcts); let z;
+          do{ z=randInt(2,40)*10; }while(((p1*p2*z)%10000)!==0); answer=(p1*p2*z)/10000; problemText=`${p1}% of ${p2}% of ${z} = ?`; break;
+        }
+        case 'mod_chain': { const m=randInt(5,13),a=randInt(7,40),b=randInt(7,40); answer=(a*b)%m; problemText=`(${a} × ${b}) mod ${m} = ?`; break; }
+        case 'digit_sum': { const k=randInt(13,49); const sq=k*k; let s=0,v=sq; while(v>0){s+=v%10;v=Math.floor(v/10);} answer=s; problemText=`Sum of digits of ${k}² = ?`; break; }
+        case 'lcm_three': { const a=randInt(3,8),b=randInt(3,8),c=randInt(3,8); answer=lcm(lcm(a,b),c); problemText=`LCM(${a}, ${b}, ${c}) = ?`; break; }
+        case 'consec_int': { const n=randInt(5,12),k=randInt(2,25); let s=0; for(let i=0;i<n;i++)s+=(k+i); answer=s; problemText=`Sum of ${n} consecutive integers starting at ${k} = ?`; break; }
+        case 'square_big': { const n=randInt(15,32); answer=n*n; problemText=`${n}² = ?`; break; }
+        case 'cube': { const n=randInt(4,13); answer=n*n*n; problemText=`${n}³ = ?`; break; }
+        case 'power2': { const e=randInt(6,12); answer=Math.pow(2,e); problemText=`2^${e} = ?`; break; }
+        case 'percent': { const p=choice([15,35,45,60,80]); let base; do{base=randInt(2,25)*10;}while((p*base)%100!==0); answer=(p*base)/100; problemText=`${p}% of ${base} = ?`; break; }
+        case 'gcf': { const x=randInt(5,18),y=randInt(5,18),g=randInt(3,12); answer=g*gcd(x,y); problemText=`GCF(${g*x}, ${g*y}) = ?`; break; }
+        case 'lcm': { const a=randInt(4,14),b=randInt(4,16); answer=lcm(a,b); problemText=`LCM(${a}, ${b}) = ?`; break; }
+        case 'factorial': { const n=randInt(5,8); let f=1; for(let i=2;i<=n;i++)f*=i; answer=f; problemText=`${n}! = ?`; break; }
+        case 'mixed': { const a=randInt(3,14),b=randInt(3,14),c=randInt(3,14),dd=randInt(5,25); answer=a*b+c*dd; problemText=`${a} × ${b} + ${c} × ${dd} = ?`; break; }
+        case 'algebra3step': {
+          let a,b,c,dd,x,tries=0;
+          do{ b=randInt(2,9); x=randInt(2,14); c=randInt(2,8); dd=randInt(4,20); a=c*dd-b*x; tries++; }
+          while((a<=0||a>60)&&tries<8);
+          answer=x; problemText=`(${a} + ${b}x) / ${c} = ${dd}, x = ?`; break;
+        }
+        case 'div_remainder': { const b=randInt(4,13),q=randInt(5,30),r=randInt(1,b-1); answer=r; problemText=`${b*q+r} ÷ ${b} has remainder ?`; break; }
+        case 'sum_evens': { const n=randInt(5,18); answer=n*(n+1); problemText=`2 + 4 + 6 + … + ${2*n} = ?`; break; }
+        case 'sum_odds': { const n=randInt(5,18); answer=n*n; problemText=`1 + 3 + 5 + … + ${2*n-1} = ?`; break; }
+        case 'arith_next': { const start=randInt(2,20); const step=choice([3,4,5,6,7,8]); const t=[start,start+step,start+2*step,start+3*step]; answer=start+4*step; problemText=`${t.join(', ')}, ?`; break; }
+        case 'geom_next': { const start=choice([2,3,4,5]); const r=choice([2,3]); const t=[start,start*r,start*r*r,start*r*r*r]; answer=start*Math.pow(r,4); problemText=`${t.join(', ')}, ?`; break; }
+        case 'sum_factorials': { const n=randInt(3,5); let sum=0,f=1; for(let i=1;i<=n;i++){f*=i;sum+=f;} answer=sum; problemText=`1! + 2! + … + ${n}! = ?`; break; }
+        case 'pythag': { const [a,b,c]=choice([[3,4,5],[5,12,13],[6,8,10],[7,24,25],[8,15,17],[9,12,15],[9,40,41]]); answer=c; problemText=`Hypotenuse of right triangle with legs ${a} and ${b} = ?`; break; }
+        case 'triangle_perimeter': { const s=choice([[5,12,13],[3,4,5],[6,8,10],[7,7,7],[8,15,17],[6,6,6],[9,12,15]]); answer=s.reduce((a,b)=>a+b,0); problemText=`Perimeter of triangle with sides ${s.join(', ')} = ?`; break; }
+        case 'mean_list': {
+          const n=choice([3,4,5]); const mean=randInt(5,20); const nums=[];
+          for(let i=0;i<n-1;i++) nums.push(mean+randInt(-5,5));
+          const last=mean*n-nums.reduce((s,v)=>s+v,0); nums.push(last);
+          if(nums.some(v=>v<=0)){ answer=10; problemText=`Mean of 8, 10, 12 = ?`; break; }
+          answer=mean; problemText=`Mean of ${nums.join(', ')} = ?`; break;
+        }
+        case 'median_list': {
+          const n=choice([3,5,7]); const nums=[];
+          for(let i=0;i<n;i++) nums.push(randInt(2,40));
+          nums.sort((a,b)=>a-b); answer=nums[(n-1)/2];
+          const display=[...nums].sort(()=>Math.random()-0.5);
+          problemText=`Median of ${display.join(', ')} = ?`; break;
+        }
+        case 'count_range': { const a=randInt(5,50),b=a+randInt(8,40); answer=b-a+1; problemText=`How many integers from ${a} to ${b}, inclusive?`; break; }
+        case 'count_evens': { const a=randInt(2,30),b=a+randInt(10,50); let cnt=0; for(let i=a;i<=b;i++) if(i%2===0)cnt++; answer=cnt; problemText=`How many even integers from ${a} to ${b}?`; break; }
+        case 'percent_inverse': {
+          const p=choice([10,20,25,40,50,60,75,80]); const y=randInt(2,20)*10; const x=(p*y)/100;
+          if(!Number.isInteger(x)){ answer=25; problemText=`25 is what % of 100?`; break; }
+          answer=p; problemText=`${x} is what % of ${y}?`; break;
+        }
+        case 'power3': { const e=randInt(3,6); answer=Math.pow(3,e); problemText=`3^${e} = ?`; break; }
+      }
+    }
+
+    const wrongScale = state.difficulty === 'genius' ? 0.07 : 0.15;
+    const range = Math.max(2, Math.floor(Math.abs(answer)*wrongScale));
+    const wrongs = []; let attempts = 0;
+    while (wrongs.length<3 && attempts<60){
+      attempts++;
+      const delta = randInt(-range-2, range+2) || 1;
+      let w = answer + delta;
+      if (w<0) w = answer + Math.abs(delta) + 1;
+      if (w===answer) continue;
+      if (wrongs.includes(w)) continue;
+      wrongs.push(w);
+    }
+    let bump=1;
+    while(wrongs.length<3){ const w=answer+bump; if(w!==answer && !wrongs.includes(w)) wrongs.push(w); bump++; }
+    return { problemText, answer, wrongs };
+  }
+
+  // ===== Sound (tiny WebAudio blips) =====
+  let actx=null;
+  function beep(freq, dur, type, vol){
+    if (state.muted) return;
+    try{
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type=type||'sine'; o.frequency.value=freq;
+      g.gain.value=vol||0.06;
+      o.connect(g); g.connect(actx.destination);
+      const t=actx.currentTime; o.start(t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+(dur||0.15));
+      o.stop(t+(dur||0.15));
+    }catch(e){}
+  }
+  const sEat   = ()=>beep(520,0.10,'square',0.05);
+  const sRight = ()=>{ beep(660,0.12,'triangle',0.07); setTimeout(()=>beep(880,0.16,'triangle',0.07),90); };
+  const sWrong = ()=>beep(160,0.25,'sawtooth',0.07);
+  const sRoar  = ()=>{ beep(220,0.35,'sawtooth',0.09); setTimeout(()=>beep(140,0.4,'sawtooth',0.08),120); };
+
+  // ===== Pickers UI =====
+  function buildPickers(){
+    const lp = $('lion-picker');
+    lp.innerHTML='';
+    LIONS.forEach(l=>{
+      const b=document.createElement('button');
+      b.className='chip'+(l.id===state.selLion?' selected':'');
+      b.setAttribute('role','radio');
+      b.innerHTML=`<span class="chip-emoji">${l.emoji}</span><span class="chip-name">${l.name}</span><span class="chip-desc">${l.desc}</span>`;
+      b.onclick=()=>{ state.selLion=l.id; [...lp.children].forEach(c=>c.classList.remove('selected')); b.classList.add('selected'); drawPreview(); };
+      lp.appendChild(b);
+    });
+    const lnd = $('land-picker');
+    lnd.innerHTML='';
+    LANDS.forEach(l=>{
+      const b=document.createElement('button');
+      b.className='chip'+(l.id===state.selLand?' selected':'');
+      b.setAttribute('role','radio');
+      b.innerHTML=`<span class="chip-emoji">${l.emoji}</span><span class="chip-name">${l.name}</span>`;
+      b.onclick=()=>{ state.selLand=l.id; [...lnd.children].forEach(c=>c.classList.remove('selected')); b.classList.add('selected'); drawPreview(); };
+      lnd.appendChild(b);
+    });
+    const dp = $('diff-picker');
+    dp.innerHTML='';
+    DIFFS.forEach(d=>{
+      const b=document.createElement('button');
+      b.className='chip'+(d.id===state.difficulty?' selected':'');
+      b.setAttribute('role','radio');
+      b.innerHTML=`<span class="chip-emoji">${d.emoji}</span><span class="chip-name">${d.name}</span><span class="chip-desc">${d.desc}</span>`;
+      b.onclick=()=>{ state.difficulty=d.id; [...dp.children].forEach(c=>c.classList.remove('selected')); b.classList.add('selected'); };
+      dp.appendChild(b);
+    });
+  }
+
+  function lionDef(id){ return LIONS.find(l=>l.id===id)||LIONS[0]; }
+  function landDef(id){ return LANDS.find(l=>l.id===id)||LANDS[0]; }
+
+  // ===== Draw a lion (canvas art) =====
+  function drawLion(c, x, y, r, def, facing){
+    facing = facing||1;
+    c.save();
+    c.translate(x,y);
+    // shadow
+    c.fillStyle='rgba(0,0,0,.18)';
+    c.beginPath(); c.ellipse(0, r*0.85, r*0.9, r*0.3, 0, 0, Math.PI*2); c.fill();
+    // mane (males)
+    if (def.mane){
+      c.fillStyle=def.mane;
+      const spikes=12;
+      c.beginPath();
+      for(let i=0;i<spikes;i++){
+        const a=(i/spikes)*Math.PI*2;
+        const rr=r*(1.45 + (i%2?0.0:0.18));
+        c.lineTo(Math.cos(a)*rr, Math.sin(a)*rr);
+      }
+      c.closePath(); c.fill();
+      c.fillStyle=def.mane2;
+      c.beginPath(); c.arc(0,0,r*1.18,0,Math.PI*2); c.fill();
+    }
+    // head/body
+    c.fillStyle=def.coat;
+    c.beginPath(); c.arc(0,0,r,0,Math.PI*2); c.fill();
+    // muzzle
+    c.fillStyle='#fff3df';
+    c.beginPath(); c.ellipse(facing*r*0.18, r*0.28, r*0.5, r*0.38, 0,0,Math.PI*2); c.fill();
+    // ears
+    c.fillStyle=def.coat;
+    c.beginPath(); c.arc(-r*0.6,-r*0.7, r*0.28,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc( r*0.6,-r*0.7, r*0.28,0,Math.PI*2); c.fill();
+    c.fillStyle='#d98c6a';
+    c.beginPath(); c.arc(-r*0.6,-r*0.7, r*0.13,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc( r*0.6,-r*0.7, r*0.13,0,Math.PI*2); c.fill();
+    // eyes
+    c.fillStyle='#2a1a0a';
+    c.beginPath(); c.arc(facing*-r*0.05 - r*0.22,-r*0.1, r*0.1,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(facing*-r*0.05 + r*0.22,-r*0.1, r*0.1,0,Math.PI*2); c.fill();
+    // nose
+    c.fillStyle='#7a3b22';
+    c.beginPath(); c.moveTo(0,r*0.12); c.lineTo(-r*0.12,r*0.0); c.lineTo(r*0.12,r*0.0); c.closePath(); c.fill();
+    // mouth
+    c.strokeStyle='#7a3b22'; c.lineWidth=Math.max(1.5,r*0.05);
+    c.beginPath(); c.moveTo(0,r*0.12); c.lineTo(0,r*0.32);
+    c.arc(0,r*0.32, r*0.16, -Math.PI/2, Math.PI/2*0+0.6); c.stroke();
+    if (def.special){
+      // sparkle for Isa
+      c.fillStyle='#fff';
+      c.font=`${r*0.7}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('✨', r*0.9, -r*1.0);
+    }
+    c.restore();
+  }
+
+  function drawPreview(){
+    const w=300,h=180;
+    const land=landDef(state.selLand);
+    const g=pctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,land.sky); g.addColorStop(1,land.g1);
+    pctx.fillStyle=g; pctx.fillRect(0,0,w,h);
+    // ground
+    pctx.fillStyle=land.g2; pctx.fillRect(0,h*0.72,w,h*0.28);
+    // sun
+    pctx.fillStyle='rgba(255,255,255,.5)';
+    pctx.beginPath(); pctx.arc(w*0.8,h*0.28,26,0,Math.PI*2); pctx.fill();
+    drawLion(pctx, w/2, h*0.62, 40, lionDef(state.selLion), 1);
+  }
+
+  // ===== Game setup =====
+  function resetGame(){
+    state.score=0; state.size=1; state.level=1; state.hearts=3;
+    state.timeLeft=GAME_SECONDS;
+    state.prey=[]; state.lions=[]; state.answers=[]; state.particles=[]; state.floaters=[];
+    state.math=null; state.mathActive=false; state.mathDeadline=0;
+    state.timesTable=2; state.timesB=1; state.lastGeniusKind=null;
+    state.best = loadBest();
+    state.player = {
+      x:PLAY_W/2, y:PLAY_H/2, vx:0, vy:0, r:26, facing:1, def:lionDef(state.selLion),
+    };
+    // seed prey & lions
+    for(let i=0;i<10;i++) spawnPrey();
+    for(let i=0;i<4;i++) spawnLion();
+    state.nextMathAt = 2.2;     // seconds until first math
+    state.nextPreyAt = 1.5;
+    updateHUD();
+  }
+
+  function playerRadius(){ return 22 + state.size*4; }
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function farFromPlayer(x,y,minD){
+    const p=state.player; const dx=x-p.x, dy=y-p.y;
+    return (dx*dx+dy*dy) > minD*minD;
+  }
+  function spawnPrey(){
+    let x,y,tries=0;
+    do{ x=rand(40,PLAY_W-40); y=rand(40,PLAY_H-40); tries++; }while(!farFromPlayer(x,y,160)&&tries<10);
+    const def=choice(PREY);
+    state.prey.push({x,y,vx:rand(-30,30),vy:rand(-30,30),r:16,emoji:def.emoji,pts:def.pts,wob:Math.random()*6});
+  }
+  function spawnLion(){
+    let x,y,tries=0;
+    do{ x=rand(40,PLAY_W-40); y=rand(40,PLAY_H-40); tries++; }while(!farFromPlayer(x,y,260)&&tries<12);
+    const land=landDef(state.selLand);
+    // size relative to player size; outlands skews bigger/meaner
+    const meanBias = land.id==='outlands' ? 1.4 : 1.0;
+    const sz = Math.max(0.4, state.size + rand(-1.6, 1.8*meanBias));
+    const hyena = Math.random() < (land.id==='outlands'?0.5:0.28);
+    state.lions.push({
+      x,y,vx:rand(-40,40),vy:rand(-40,40),
+      size:sz, r:22+sz*4, hyena,
+      emoji: hyena? HYENA : choice(PRED_EMOJI),
+      coat: hyena? '#8a8472' : choice(['#caa15a','#b8893f','#9c7a4a','#d8b06a']),
+      hue: Math.random(),
+      retarget:0,
+    });
+  }
+
+  // ===== Math flow =====
+  function startMath(){
+    const m = makeMathProblem();
+    state.math = m;
+    state.mathActive = true;
+    state.mathDeadline = (state.difficulty==='genius'?MATH_ANSWER_TIMEOUT_GENIUS_MS:MATH_ANSWER_TIMEOUT_MS)/1000;
+    // place 4 answer stones around the arena
+    const opts = [m.answer, ...m.wrongs].slice(0,4);
+    // shuffle
+    for(let i=opts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+    state.answers = [];
+    const margin=70;
+    opts.forEach(val=>{
+      let x,y,tries=0,ok=false;
+      do{
+        x=rand(margin,PLAY_W-margin); y=rand(margin,PLAY_H-margin); tries++;
+        ok = farFromPlayer(x,y,150) && state.answers.every(a=>{
+          const dx=a.x-x,dy=a.y-y; return dx*dx+dy*dy > 150*150;
+        });
+      }while(!ok && tries<30);
+      state.answers.push({x,y,vx:rand(-12,12),vy:rand(-12,12),r:30,val,correct:val===m.answer,wob:Math.random()*6});
+    });
+    $('math-label').textContent = state.difficulty==='times' ? 'Times table!' : 'Eat the right answer!';
+    $('math-problem').textContent = m.problemText;
+    beep(440,0.12,'triangle',0.05);
+  }
+  function endMath(){
+    state.mathActive=false; state.math=null; state.answers=[];
+    $('math-label').textContent='Roam and hunt…';
+    $('math-problem').textContent='Eat animals to grow!';
+    $('math-timer').textContent='';
+    $('math-timer').classList.remove('countdown');
+    state.nextMathAt = rand(4,7);
+  }
+
+  function onAnswer(a){
+    if (a.correct){
+      sRight();
+      state.level++;
+      state.size += 2;
+      state.score += 25 + state.level*3;
+      addFloater(a.x,a.y,'LEVEL UP! +'+(25+state.level*3),'#2f7d3a');
+      burst(a.x,a.y,'#5fc36a',18);
+      showToast('Correct! Level '+state.level+' 🦁','good');
+      // reward: clear nearby threats a touch by growing
+      state.player.r = playerRadius();
+    } else {
+      sWrong();
+      state.hearts--;
+      state.size = Math.max(1, state.size-1);
+      addFloater(a.x,a.y,'Oops! −1 ❤️','#b03a2e');
+      burst(a.x,a.y,'#e25b4a',14);
+      showToast('Not that one!','bad');
+      state.screenShake = 10;
+      if (state.hearts<=0){ endMath(); gameOver('A wrong answer left you weak…','You ran out of hearts!'); return; }
+    }
+    endMath();
+    updateHUD();
+  }
+
+  // ===== Effects =====
+  function burst(x,y,color,n){
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2, sp=rand(40,180);
+      state.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:rand(.4,.8),max:.8,color,r:rand(2,5)});
+    }
+  }
+  function addFloater(x,y,text,color){ state.floaters.push({x,y,text,color,life:1.1,vy:-40}); }
+
+  let toastT=null;
+  function showToast(msg,kind){
+    const t=$('toast'); t.textContent=msg; t.className='toast show'+(kind?(' '+kind):'');
+    clearTimeout(toastT); toastT=setTimeout(()=>{ t.className='toast'+(kind?(' '+kind):''); },1400);
+  }
+
+  // ===== HUD =====
+  function updateHUD(){
+    $('hud-score').textContent=state.score;
+    $('hud-size').textContent=Math.round(state.size);
+    $('hud-level').textContent=state.level;
+    $('hud-hearts').textContent='❤️'.repeat(Math.max(0,state.hearts))||'💀';
+    $('hud-best').textContent=Math.max(state.best,state.score);
+    const m=Math.floor(state.timeLeft/60), s=Math.floor(state.timeLeft%60);
+    $('hud-timer').textContent=m+':'+String(s).padStart(2,'0');
+  }
+
+  // ===== Update loop =====
+  function update(dt){
+    const p=state.player;
+    // input → velocity
+    let ax=0, ay=0;
+    if (state.keys['ArrowLeft']||state.keys['a']) ax-=1;
+    if (state.keys['ArrowRight']||state.keys['d']) ax+=1;
+    if (state.keys['ArrowUp']||state.keys['w']) ay-=1;
+    if (state.keys['ArrowDown']||state.keys['s']) ay+=1;
+    if (state.pointer){ ax=state.pointer.dx; ay=state.pointer.dy; }
+    const mag=Math.hypot(ax,ay);
+    const speed = 230 + state.size*2;
+    if (mag>0.05){ ax/=Math.max(mag,1); ay/=Math.max(mag,1); p.vx=ax*speed; p.vy=ay*speed; if(Math.abs(ax)>0.1)p.facing=ax>0?1:-1; }
+    else { p.vx*=0.86; p.vy*=0.86; }
+    p.x+=p.vx*dt; p.y+=p.vy*dt;
+    // wrap
+    if(p.x<0)p.x+=PLAY_W; if(p.x>PLAY_W)p.x-=PLAY_W;
+    if(p.y<0)p.y+=PLAY_H; if(p.y>PLAY_H)p.y-=PLAY_H;
+    p.r = playerRadius();
+
+    // camera
+    state.cam.x = p.x; state.cam.y = p.y;
+
+    // move prey (wander, flee from player when close)
+    state.prey.forEach(o=>{
+      const dx=p.x-o.x, dy=p.y-o.y, d=Math.hypot(dx,dy);
+      if (d<180){ o.vx-=dx/d*60*dt*4; o.vy-=dy/d*60*dt*4; }
+      o.vx+=rand(-20,20)*dt; o.vy+=rand(-20,20)*dt;
+      const sp=Math.hypot(o.vx,o.vy), max=90;
+      if(sp>max){ o.vx=o.vx/sp*max; o.vy=o.vy/sp*max; }
+      o.x+=o.vx*dt; o.y+=o.vy*dt; o.wob+=dt*6;
+      if(o.x<0)o.x+=PLAY_W; if(o.x>PLAY_W)o.x-=PLAY_W;
+      if(o.y<0)o.y+=PLAY_H; if(o.y>PLAY_H)o.y-=PLAY_H;
+    });
+    // eat prey
+    for(let i=state.prey.length-1;i>=0;i--){
+      const o=state.prey[i];
+      if (dist(o,p) < p.r + o.r*0.5){
+        state.prey.splice(i,1);
+        state.score+=o.pts; state.size+=0.5;
+        addFloater(o.x,o.y,'+'+o.pts,'#7a4d1c'); sEat();
+        burst(o.x,o.y,'#ffcf5a',8);
+        updateHUD();
+      }
+    }
+
+    // move lions (wander; chase if bigger, flee if smaller)
+    state.lions.forEach(o=>{
+      o.retarget-=dt;
+      const dx=p.x-o.x, dy=p.y-o.y, d=Math.hypot(dx,dy)||1;
+      const big = o.size > state.size;
+      const seeRange = o.hyena?420:320;
+      if (d<seeRange){
+        const dir = big?1:-1;     // bigger chases, smaller flees
+        o.vx += (dx/d)*dir*120*dt;
+        o.vy += (dy/d)*dir*120*dt;
+      } else if(o.retarget<=0){
+        o.vx=rand(-50,50); o.vy=rand(-50,50); o.retarget=rand(1,2.5);
+      }
+      const sp=Math.hypot(o.vx,o.vy), max=big?170:150;
+      if(sp>max){ o.vx=o.vx/sp*max; o.vy=o.vy/sp*max; }
+      o.x+=o.vx*dt; o.y+=o.vy*dt;
+      if(o.x<0)o.x+=PLAY_W; if(o.x>PLAY_W)o.x-=PLAY_W;
+      if(o.y<0)o.y+=PLAY_H; if(o.y>PLAY_H)o.y-=PLAY_H;
+    });
+    // lion collisions
+    for(let i=state.lions.length-1;i>=0;i--){
+      const o=state.lions[i];
+      if (dist(o,p) < p.r + o.r*0.7){
+        if (o.size > state.size + 0.3){
+          // they get you → lose a heart, knockback
+          state.hearts--; state.screenShake=14; sRoar();
+          addFloater(p.x,p.y,'−1 ❤️','#b03a2e');
+          burst(p.x,p.y,'#e25b4a',16);
+          // knock the predator away & respawn it elsewhere
+          state.lions.splice(i,1); spawnLion();
+          state.size=Math.max(1,state.size-1);
+          updateHUD();
+          if(state.hearts<=0){ gameOver(o.hyena?'The hyenas got you!':'A bigger lion got you!','Out of hearts — but what a hunt!'); return; }
+        } else {
+          // you pounce them → points + grow
+          state.lions.splice(i,1);
+          const gain = 8 + Math.round(o.size*3);
+          state.score+=gain; state.size+=1;
+          addFloater(o.x,o.y,'Pounce! +'+gain,'#2f7d3a'); sEat();
+          burst(o.x,o.y,'#ffcf5a',12);
+          spawnLion();
+          updateHUD();
+        }
+      }
+    }
+
+    // answer stones drift
+    if (state.mathActive){
+      state.answers.forEach(o=>{
+        o.x+=o.vx*dt; o.y+=o.vy*dt; o.wob+=dt*4;
+        if(o.x<40||o.x>PLAY_W-40)o.vx*=-1;
+        if(o.y<40||o.y>PLAY_H-40)o.vy*=-1;
+      });
+      for(let i=0;i<state.answers.length;i++){
+        const a=state.answers[i];
+        if (dist(a,p) < p.r + a.r*0.7){ onAnswer(a); break; }
+      }
+      // countdown
+      state.mathDeadline-=dt;
+      $('math-timer').textContent=Math.ceil(Math.max(0,state.mathDeadline))+'s';
+      $('math-timer').classList.toggle('countdown', state.mathDeadline<6);
+      if (state.mathDeadline<=0){
+        sWrong(); state.hearts--; state.screenShake=8;
+        showToast('Too slow! −1 ❤️','bad');
+        if(state.hearts<=0){ endMath(); gameOver('You hesitated too long…','Out of hearts!'); return; }
+        endMath(); updateHUD();
+      }
+    } else {
+      // timers
+      state.nextMathAt-=dt;
+      if (state.nextMathAt<=0) startMath();
+    }
+
+    // keep population up
+    state.nextPreyAt-=dt;
+    if (state.nextPreyAt<=0 && state.prey.length<14){ spawnPrey(); state.nextPreyAt=rand(1.5,3); }
+    if (state.lions.length<4 && Math.random()<dt*0.4) spawnLion();
+
+    // particles & floaters
+    state.particles.forEach(pt=>{ pt.x+=pt.vx*dt; pt.y+=pt.vy*dt; pt.vy+=140*dt; pt.life-=dt; });
+    state.particles=state.particles.filter(pt=>pt.life>0);
+    state.floaters.forEach(f=>{ f.y+=f.vy*dt; f.life-=dt; });
+    state.floaters=state.floaters.filter(f=>f.life>0);
+    if(state.screenShake>0) state.screenShake=Math.max(0,state.screenShake-dt*40);
+
+    // game timer
+    state.timeLeft-=dt;
+    if (state.timeLeft<=0){ state.timeLeft=0; gameOver('The sun has set 🌅','Time! Great hunting today.'); return; }
+    updateHUD();
+  }
+  function dist(a,b){
+    // shortest wrapped distance
+    let dx=Math.abs(a.x-b.x), dy=Math.abs(a.y-b.y);
+    dx=Math.min(dx,PLAY_W-dx); dy=Math.min(dy,PLAY_H-dy);
+    return Math.hypot(dx,dy);
+  }
+
+  // ===== Render =====
+  function sizeCanvas(){
+    const wrap=canvas.parentElement;
+    const cssW=Math.min(wrap.clientWidth,1100);
+    const cssH=cssW*(PLAY_H/PLAY_W);
+    const dpr=window.devicePixelRatio||1;
+    canvas.style.width=cssW+'px'; canvas.style.height=cssH+'px';
+    canvas.width=Math.floor(cssW*dpr); canvas.height=Math.floor(cssH*dpr);
+    state._scaleX=(cssW*dpr)/PLAY_W; state._scaleY=(cssH*dpr)/PLAY_H;
+  }
+  function render(){
+    const land=landDef(state.selLand);
+    const sx=state._scaleX, sy=state._scaleY;
+    ctx.setTransform(sx,0,0,sy,0,0);
+    // shake
+    let shx=0,shy=0;
+    if(state.screenShake>0){ shx=rand(-1,1)*state.screenShake; shy=rand(-1,1)*state.screenShake; }
+    ctx.save(); ctx.translate(shx,shy);
+
+    // background
+    const g=ctx.createLinearGradient(0,0,0,PLAY_H);
+    g.addColorStop(0,land.sky); g.addColorStop(1,land.g1);
+    ctx.fillStyle=g; ctx.fillRect(0,0,PLAY_W,PLAY_H);
+    // ground texture: scattered tufts / rocks
+    drawGroundDetail(land);
+
+    // entities
+    state.prey.forEach(o=>drawEmoji(o.emoji, o.x, o.y, o.r*2, Math.sin(o.wob)*0.1));
+    state.lions.forEach(o=>{
+      drawLion(ctx,o.x,o.y,o.r,{coat:o.coat,mane:(o.hyena?null:'#5a3a1c'),mane2:'#7a4a22'},1);
+      drawEmoji(o.hyena?'🐾':'', o.x, o.y-o.r-12, 18, 0);
+    });
+
+    // answer stones
+    if (state.mathActive){
+      state.answers.forEach(a=>{
+        const bob=Math.sin(a.wob)*4;
+        ctx.save(); ctx.translate(a.x, a.y+bob);
+        ctx.fillStyle=a.correct?'#fff':'#fff';
+        ctx.strokeStyle='#9c5a17'; ctx.lineWidth=4;
+        roundRect(ctx,-a.r,-a.r*0.8,a.r*2,a.r*1.6,12); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#3a2410'; ctx.font='bold '+Math.max(20,a.r*0.95)+'px Trebuchet MS, sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(String(a.val),0,2);
+        ctx.restore();
+      });
+    }
+
+    // player
+    drawLion(ctx, state.player.x, state.player.y, state.player.r, state.player.def, state.player.facing);
+    // crown ring if special
+    // particles
+    state.particles.forEach(pt=>{
+      ctx.globalAlpha=Math.max(0,pt.life/pt.max);
+      ctx.fillStyle=pt.color;
+      ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=1;
+    });
+    // floaters
+    state.floaters.forEach(f=>{
+      ctx.globalAlpha=Math.max(0,f.life/1.1);
+      ctx.fillStyle=f.color; ctx.font='bold 26px Trebuchet MS, sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=4;
+      ctx.strokeText(f.text,f.x,f.y); ctx.fillText(f.text,f.x,f.y);
+      ctx.globalAlpha=1;
+    });
+
+    ctx.restore();
+  }
+  let _detailCache=null;
+  function drawGroundDetail(land){
+    if(!_detailCache || _detailCache.land!==land.id){
+      const items=[];
+      for(let i=0;i<70;i++) items.push({x:Math.random()*PLAY_W,y:Math.random()*PLAY_H,s:rand(6,16)});
+      _detailCache={land:land.id,items};
+    }
+    ctx.save();
+    _detailCache.items.forEach(it=>{
+      if(land.detail==='grass'){
+        ctx.strokeStyle='rgba(120,90,30,.25)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(it.x,it.y); ctx.lineTo(it.x-it.s*0.3,it.y-it.s); ctx.moveTo(it.x,it.y); ctx.lineTo(it.x,it.y-it.s*1.2); ctx.moveTo(it.x,it.y); ctx.lineTo(it.x+it.s*0.3,it.y-it.s); ctx.stroke();
+      } else if(land.detail==='rock'){
+        ctx.fillStyle='rgba(60,40,20,.22)';
+        ctx.beginPath(); ctx.ellipse(it.x,it.y,it.s,it.s*0.7,0,0,Math.PI*2); ctx.fill();
+      } else {
+        ctx.fillStyle='rgba(20,30,10,.25)';
+        ctx.beginPath(); ctx.arc(it.x,it.y,it.s*0.5,0,Math.PI*2); ctx.fill();
+      }
+    });
+    ctx.restore();
+  }
+  function drawEmoji(em,x,y,size,rot){
+    if(!em) return;
+    ctx.save(); ctx.translate(x,y); if(rot)ctx.rotate(rot);
+    ctx.font=size+'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(em,0,0); ctx.restore();
+  }
+  function roundRect(c,x,y,w,h,r){
+    c.beginPath();
+    c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+    c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+  }
+
+  // ===== Main loop =====
+  function frame(ts){
+    if(!state.running) return;
+    if(!state.lastTs) state.lastTs=ts;
+    let dt=(ts-state.lastTs)/1000; state.lastTs=ts;
+    dt=Math.min(dt,0.05);
+    if(!state.paused){ update(dt); }
+    render();
+    if(state.running) requestAnimationFrame(frame);
+  }
+
+  // ===== Screen control =====
+  function show(id){
+    ['start-screen','game-screen'].forEach(s=>$(s).classList.toggle('active', s===id));
+    ['pause-screen','gameover-screen'].forEach(s=>$(s).classList.remove('active'));
+  }
+  function showOverlay(id,on){ $(id).classList.toggle('active',on); }
+
+  function startGame(){
+    resetGame();
+    show('game-screen');
+    sizeCanvas();
+    state.running=true; state.paused=false; state.lastTs=0;
+    requestAnimationFrame(frame);
+  }
+  function gameOver(title,msg){
+    state.running=false;
+    sRoar();
+    $('gameover-title').textContent=title;
+    $('gameover-msg').textContent=msg;
+    $('final-score').textContent=state.score;
+    $('final-size').textContent=Math.round(state.size);
+    $('final-level').textContent=state.level;
+    const best=loadBest();
+    const isBest = state.score>best;
+    $('new-best').classList.toggle('hidden', !isBest);
+    if(isBest){ saveBest(state.score); }
+    $('lb-name-row').classList.remove('hidden');
+    $('lb-name-input').value='';
+    renderLeaderboard('gameover-leaderboard');
+    showOverlay('gameover-screen',true);
+  }
+  function pauseGame(on){
+    if(!state.running) return;
+    state.paused=on; showOverlay('pause-screen',on);
+    if(!on){ state.lastTs=0; requestAnimationFrame(frame); }
+  }
+
+  // ===== Leaderboard =====
+  function renderLeaderboard(elId){
+    const lb=loadLB(); const el=$(elId);
+    if(!lb.length){ el.innerHTML='<div class="lb-empty">No scores yet — be the first lion!</div>'; return; }
+    el.innerHTML=lb.map((e,i)=>{
+      const lion=lionDef(e.lion);
+      const dn=(e.difficulty||'').charAt(0).toUpperCase()+(e.difficulty||'').slice(1);
+      return `<div class="lb-row"><span class="lb-rank">${i+1}</span><span class="lb-emoji">${lion.emoji}</span><span class="lb-name">${escapeHtml(e.name)}</span><span class="lb-meta">${dn}</span><span class="lb-score">${e.score}</span></div>`;
+    }).join('');
+  }
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function saveScore(){
+    const name=($('lb-name-input').value||'Lion').trim().slice(0,16)||'Lion';
+    const lb=loadLB();
+    lb.push({name,score:state.score,lion:state.selLion,difficulty:state.difficulty});
+    lb.sort((a,b)=>b.score-a.score);
+    saveLB(lb);
+    $('lb-name-row').classList.add('hidden');
+    renderLeaderboard('gameover-leaderboard');
+    renderLeaderboard('start-leaderboard');
+  }
+
+  // ===== Input wiring =====
+  window.addEventListener('keydown',e=>{
+    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+    if(e.key===' '||e.key==='p'||e.key==='P'){ if(state.running) pauseGame(!state.paused); return; }
+    state.keys[e.key]=true;
+  });
+  window.addEventListener('keyup',e=>{ state.keys[e.key]=false; });
+
+  // pointer / touch drag → relative direction from player center on screen
+  function setupPointer(){
+    const wrap=canvas.parentElement;
+    let dragging=false;
+    function handle(clientX,clientY){
+      const rect=canvas.getBoundingClientRect();
+      const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+      let dx=clientX-cx, dy=clientY-cy;
+      const m=Math.hypot(dx,dy)||1;
+      // dead zone near center
+      if(m<14){ state.pointer=null; return; }
+      state.pointer={dx:dx/m, dy:dy/m};
+    }
+    wrap.addEventListener('pointerdown',e=>{ dragging=true; handle(e.clientX,e.clientY); });
+    wrap.addEventListener('pointermove',e=>{ if(dragging) handle(e.clientX,e.clientY); });
+    window.addEventListener('pointerup',()=>{ dragging=false; state.pointer=null; });
+    wrap.addEventListener('pointercancel',()=>{ dragging=false; state.pointer=null; });
+  }
+
+  // ===== Buttons =====
+  $('start-btn').onclick=()=>{ if(!actx){ try{actx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){} } startGame(); };
+  $('pause-btn').onclick=()=>pauseGame(!state.paused);
+  $('resume-btn').onclick=()=>pauseGame(false);
+  $('quit-btn').onclick=()=>{ state.running=false; showOverlay('pause-screen',false); show('start-screen'); renderLeaderboard('start-leaderboard'); };
+  $('play-again-btn').onclick=()=>{ showOverlay('gameover-screen',false); startGame(); };
+  $('home-btn').onclick=()=>{ showOverlay('gameover-screen',false); show('start-screen'); renderLeaderboard('start-leaderboard'); };
+  $('save-score-btn').onclick=saveScore;
+  $('lb-name-input').addEventListener('keydown',e=>{ if(e.key==='Enter') saveScore(); });
+  $('mute-btn').onclick=()=>{ state.muted=!state.muted; $('mute-btn').textContent=state.muted?'🔇':'🔊'; };
+  $('clear-lb-btn').onclick=()=>{ if(confirm('Clear the leaderboard?')){ saveLB([]); renderLeaderboard('start-leaderboard'); } };
+
+  window.addEventListener('resize',()=>{ if(state.running) sizeCanvas(); });
+
+  // ===== Init =====
+  state.best=loadBest();
+  buildPickers();
+  drawPreview();
+  renderLeaderboard('start-leaderboard');
+  setupPointer();
+})();
+</script>
+</body>
+</html>
