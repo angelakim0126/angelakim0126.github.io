@@ -239,6 +239,14 @@ footer {
   font-size: 0.9rem;
 }
 footer a { color: var(--accent); font-weight: 600; }
+.made-by {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-style: italic;
+  margin: 0 0 6px;
+  color: var(--ink-soft);
+  opacity: 0.9;
+}
 .disclaimer {
   font-size: 0.78rem;
   opacity: 0.65;
