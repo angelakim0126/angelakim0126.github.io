@@ -139,6 +139,26 @@
   .joystick.show{display:block}
   .joystick-stick{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:#ffffffaa;border:2px solid #fff}
 
+  .power-banner{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:6px 10px;background:#3a2410dd}
+  .power-banner.hidden{display:none}
+  .power-banner .pwr{
+    display:inline-flex;align-items:center;gap:5px;font-weight:bold;font-size:.85rem;
+    color:#fff;background:var(--c,#e2483a);padding:4px 12px;border-radius:40px;
+    box-shadow:0 0 14px var(--c,#e2483a);
+  }
+  .action-bar{display:flex;gap:10px;justify-content:center;padding:10px 10px 4px;flex-wrap:wrap}
+  .action-btn{
+    cursor:pointer;border:none;border-radius:16px;font:inherit;color:var(--ink);
+    background:linear-gradient(180deg,#fff4d6,#ffd98a);border:2px solid var(--gold-2);
+    display:flex;flex-direction:column;align-items:center;gap:1px;min-width:92px;padding:8px 14px;
+    box-shadow:0 4px 12px rgba(200,90,10,.3);transition:transform .06s, opacity .12s;
+    -webkit-user-select:none;user-select:none;touch-action:manipulation;
+  }
+  .action-btn:active{transform:translateY(2px)}
+  .action-btn.cooling{opacity:.4;filter:grayscale(.5)}
+  .action-btn .act-emoji{font-size:1.5rem;line-height:1}
+  .action-btn .act-name{font-weight:bold;font-size:.92rem}
+  .action-btn .act-key{font-size:.62rem;opacity:.6;border:1px solid #0003;border-radius:4px;padding:0 4px}
   .controls-hint{text-align:center;padding:8px;font-size:.85rem;color:#5a3a14}
   kbd{background:#fff;border:1px solid #b98;border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-family:inherit;font-size:.8rem}
 
@@ -207,7 +227,9 @@
       <ul>
         <li>🎮 <strong>Move</strong> with arrow keys, WASD, or drag/touch on iPad.</li>
         <li>🐢 <strong>Eat other animals</strong> (turtles, fish, gazelles) for points and to grow.</li>
-        <li>🦁 <strong>Pounce smaller lions</strong> — but run from ones BIGGER than you and from hyenas!</li>
+        <li>🏷️ Every lion shows its <strong>level</strong> on a badge — <span style="color:#2f9d46;font-weight:bold">green</span> means you can beat it, <span style="color:#d8362a;font-weight:bold">red</span> means it out-levels you. Your own level (★) is on Iris. Beat lions and answer math to level up!</li>
+        <li>🥊 <strong>Fight other lions</strong> three ways: <strong>Scratch</strong> (J) is quick and hits all around you (same level or lower), <strong>Bite</strong> (K) is strong enough to beat lions up to 2 levels higher, and <strong>Jump-on</strong> (L) leaps at the nearest lion (up to 1 level higher). Run from much higher-level lions and hyenas!</li>
+        <li>✨ <strong>Grab powers</strong> floating in the grass: 🛡️ <strong>Shield</strong> (a red bubble that protects you), 🔥 <strong>Roar</strong> (beat ANY lion and scare them away), 💨 <strong>Speed</strong> (run super fast).</li>
         <li>🧮 A <strong>math problem</strong> pops up with FOUR answer stones (1 right, 3 wrong). Eat the RIGHT one to LEVEL UP and grow big!</li>
         <li>❤️ Eating a wrong answer or getting caught costs a heart. Lose all hearts and it's game over.</li>
         <li>🌀 The edges <strong>wrap around</strong> — leave one side, appear on the other.</li>
@@ -220,7 +242,7 @@
 <section id="game-screen" class="screen">
   <div class="hud">
     <div class="hud-item"><span class="hud-label">Score</span><span id="hud-score" class="hud-value">0</span></div>
-    <div class="hud-item"><span class="hud-label">Lion Size</span><span id="hud-size" class="hud-value">1</span></div>
+    <div class="hud-item"><span class="hud-label">Lion Lv</span><span id="hud-size" class="hud-value">1</span></div>
     <div class="hud-item"><span class="hud-label">Math Lv</span><span id="hud-level" class="hud-value">1</span></div>
     <div class="hud-item"><span class="hud-label">Hearts</span><span id="hud-hearts" class="hud-value hud-hearts">❤️❤️❤️</span></div>
     <div class="hud-item"><span class="hud-label">Best</span><span id="hud-best" class="hud-value">0</span></div>
@@ -237,13 +259,21 @@
     <span id="math-problem" class="math-problem">Eat animals to grow!</span>
   </div>
 
+  <div id="power-banner" class="power-banner hidden"></div>
+
   <div class="canvas-wrap">
     <canvas id="game-canvas"></canvas>
     <div id="joystick" class="joystick"><div class="joystick-stick"></div></div>
   </div>
 
+  <div class="action-bar">
+    <button id="act-scratch" class="action-btn"><span class="act-emoji">🐾</span><span class="act-name">Scratch</span><span class="act-key">J</span></button>
+    <button id="act-bite" class="action-btn"><span class="act-emoji">🦷</span><span class="act-name">Bite</span><span class="act-key">K</span></button>
+    <button id="act-pounce" class="action-btn"><span class="act-emoji">⬇️</span><span class="act-name">Jump on</span><span class="act-key">L</span></button>
+  </div>
+
   <div class="controls-hint">
-    <p>Move with <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>, WASD, or drag on the screen · <kbd>Space</kbd> to pause</p>
+    <p>Move with <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>/WASD/drag · Fight: <kbd>J</kbd> Scratch <kbd>K</kbd> Bite <kbd>L</kbd> Jump-on · <kbd>Space</kbd> pause</p>
   </div>
 </section>
 
@@ -344,6 +374,20 @@
   const PRED_EMOJI = ['🦁','🐆','🐅','🦓']; // smaller lions / cats you can fight
   const HYENA = '🐺';
 
+  // Power-ups (collectibles that float in the grass and grant a timed effect)
+  const POWERS = {
+    shield: { emoji:'🛡️', name:'Shield', color:'#e2483a', dur:11 }, // red bubble — protects you
+    roar:   { emoji:'🔥', name:'Roar',   color:'#ff8a1e', dur:8  }, // beat ANY lion; lions flee
+    speed:  { emoji:'💨', name:'Speed',  color:'#3fb6e6', dur:8  }, // run much faster
+  };
+  // Fight moves: range/threshold/cooldown per move
+  // thresh = how many LEVELS above Iris this move can still beat
+  const MOVES = {
+    scratch: { range:1.9, thresh:0, cool:0.45, label:'Scratch! +' }, // quick, hits all around (same level or lower)
+    bite:    { range:1.4, thresh:2, cool:1.0,  label:'Bite! +'    }, // strong, beats up to +2 levels
+    pounce:  { range:300, thresh:1, cool:1.3,  label:'Jump on! +' }, // leaps at nearest lion, beats up to +1 level
+  };
+
   // ===== State =====
   const state = {
     selLion: 'simba', selLand: 'pridelands', difficulty: 'hard',
@@ -352,9 +396,12 @@
     best: 0,
     timeLeft: GAME_SECONDS,
     player:null,
-    prey:[], lions:[], answers:[], particles:[], floaters:[],
+    prey:[], lions:[], answers:[], particles:[], floaters:[], powerups:[],
     math:null, mathDeadline:0, mathActive:false,
-    nextMathAt:0, nextPreyAt:0,
+    nextMathAt:0, nextPreyAt:0, nextPowerupAt:0,
+    effects:{shield:0,roar:0,speed:0},
+    cooldowns:{scratch:0,bite:0,pounce:0},
+    attackFx:null, invuln:0, tAccum:0,
     cam:{x:0,y:0},
     keys:{}, pointer:null,
     timesTable:2, timesB:1, lastGeniusKind:null,
@@ -656,8 +703,11 @@
   function resetGame(){
     state.score=0; state.size=1; state.level=1; state.hearts=3;
     state.timeLeft=GAME_SECONDS;
-    state.prey=[]; state.lions=[]; state.answers=[]; state.particles=[]; state.floaters=[];
+    state.prey=[]; state.lions=[]; state.answers=[]; state.particles=[]; state.floaters=[]; state.powerups=[];
     state.math=null; state.mathActive=false; state.mathDeadline=0;
+    state.effects={shield:0,roar:0,speed:0};
+    state.cooldowns={scratch:0,bite:0,pounce:0};
+    state.attackFx=null; state.invuln=0; state.tAccum=0;
     state.timesTable=2; state.timesB=1; state.lastGeniusKind=null;
     state.best = loadBest();
     state.player = {
@@ -668,10 +718,22 @@
     for(let i=0;i<4;i++) spawnLion();
     state.nextMathAt = 2.2;     // seconds until first math
     state.nextPreyAt = 1.5;
+    state.nextPowerupAt = 6;    // seconds until first power-up appears
     updateHUD();
+    updatePowerBanner();
+  }
+
+  function spawnPowerup(){
+    // shield appears a bit more often than the others
+    const kind = choice(['shield','shield','roar','speed']);
+    let x,y,tries=0;
+    do{ x=rand(60,PLAY_W-60); y=rand(60,PLAY_H-60); tries++; }while(!farFromPlayer(x,y,180)&&tries<12);
+    state.powerups.push({x,y,kind,r:24,wob:Math.random()*6});
   }
 
   function playerRadius(){ return 22 + state.size*4; }
+  // Iris's fighting LEVEL — the number shown on her badge and used to decide fights.
+  function playerLevel(){ return Math.max(1, Math.round(state.size)); }
 
   function rand(min,max){ return Math.random()*(max-min)+min; }
   function farFromPlayer(x,y,minD){
@@ -688,16 +750,16 @@
     let x,y,tries=0;
     do{ x=rand(40,PLAY_W-40); y=rand(40,PLAY_H-40); tries++; }while(!farFromPlayer(x,y,260)&&tries<12);
     const land=landDef(state.selLand);
-    // size relative to player size; outlands skews bigger/meaner
-    const meanBias = land.id==='outlands' ? 1.4 : 1.0;
-    const sz = Math.max(0.4, state.size + rand(-1.6, 1.8*meanBias));
+    // Every lion has its own LEVEL (shown on its badge). It's set relative to
+    // Iris's level; the Outlands breeds tougher, higher-level lions.
+    const meanBias = land.id==='outlands' ? 2 : 0;
+    const level = Math.max(1, playerLevel() + randInt(-2,2) + meanBias);
     const hyena = Math.random() < (land.id==='outlands'?0.5:0.28);
     state.lions.push({
       x,y,vx:rand(-40,40),vy:rand(-40,40),
-      size:sz, r:22+sz*4, hyena,
+      level, r:22+level*4, hyena,
       emoji: hyena? HYENA : choice(PRED_EMOJI),
       coat: hyena? '#8a8472' : choice(['#caa15a','#b8893f','#9c7a4a','#d8b06a']),
-      hue: Math.random(),
       retarget:0,
     });
   }
@@ -777,6 +839,66 @@
     clearTimeout(toastT); toastT=setTimeout(()=>{ t.className='toast'+(kind?(' '+kind):''); },1400);
   }
 
+  // ===== Combat =====
+  function defeatLion(i,o,label){
+    state.lions.splice(i,1);
+    const gain = 8 + o.level*3;
+    state.score += gain; state.size += 1;
+    addFloater(o.x,o.y,label+gain,'#2f7d3a'); sEat();
+    burst(o.x,o.y,'#ffcf5a',12);
+    spawnLion(); updateHUD();
+  }
+
+  function doAttack(kind){
+    if(!state.running || state.paused) return;
+    if(state.cooldowns[kind]>0) return;
+    const m = MOVES[kind];
+    const p = state.player;
+    state.cooldowns[kind] = m.cool;
+    const range = (kind==='pounce') ? m.range : p.r*m.range;
+    if(kind==='pounce'){
+      // leap toward the nearest lion (or straight ahead if none close)
+      let target=null, best=1e9;
+      state.lions.forEach(o=>{ const d=dist(o,p); if(d<best){ best=d; target=o; } });
+      let dx,dy;
+      if(target && best<range){ dx=target.x-p.x; dy=target.y-p.y; } else { dx=p.facing; dy=0; }
+      const mag=Math.hypot(dx,dy)||1; p.vx=dx/mag*640; p.vy=dy/mag*640;
+      state.invuln=Math.max(state.invuln,0.45); // brief safety while leaping
+    }
+    let hit=0;
+    for(let i=state.lions.length-1;i>=0;i--){
+      const o=state.lions[i];
+      if(dist(o,p) < range + o.r){
+        if(o.level <= playerLevel() + m.thresh){ defeatLion(i,o,m.label); hit++; }
+        else { // higher level — shove it away
+          const ang=Math.atan2(o.y-p.y,o.x-p.x);
+          o.vx+=Math.cos(ang)*260; o.vy+=Math.sin(ang)*260;
+          addFloater(o.x,o.y,'Too big!','#b03a2e');
+        }
+      }
+    }
+    state.attackFx={kind,t:0.3,facing:p.facing};
+    if(kind==='bite') beep(180,0.12,'square',0.06);
+    else if(kind==='scratch') beep(520,0.08,'sawtooth',0.05);
+    else beep(360,0.14,'triangle',0.06);
+  }
+
+  function updatePowerBanner(){
+    const el=$('power-banner');
+    const active=['shield','roar','speed'].filter(k=>state.effects[k]>0);
+    const html = active.map(k=>{ const pw=POWERS[k];
+      return `<span class="pwr" style="--c:${pw.color}">${pw.emoji} ${pw.name} ${Math.ceil(state.effects[k])}s</span>`; }).join('');
+    if(html===el._last) return;
+    el._last=html;
+    el.innerHTML=html;
+    el.classList.toggle('hidden', active.length===0);
+  }
+  function updateActionButtons(){
+    [['act-scratch','scratch'],['act-bite','bite'],['act-pounce','pounce']].forEach(([id,k])=>{
+      const b=$(id); if(b) b.classList.toggle('cooling', state.cooldowns[k]>0);
+    });
+  }
+
   // ===== HUD =====
   function updateHUD(){
     $('hud-score').textContent=state.score;
@@ -791,6 +913,12 @@
   // ===== Update loop =====
   function update(dt){
     const p=state.player;
+    state.tAccum += dt;
+    // tick down timed effects, cooldowns, invulnerability, attack flash
+    ['shield','roar','speed'].forEach(k=>{ if(state.effects[k]>0) state.effects[k]=Math.max(0,state.effects[k]-dt); });
+    ['scratch','bite','pounce'].forEach(k=>{ if(state.cooldowns[k]>0) state.cooldowns[k]=Math.max(0,state.cooldowns[k]-dt); });
+    if(state.invuln>0) state.invuln=Math.max(0,state.invuln-dt);
+    if(state.attackFx){ state.attackFx.t-=dt; if(state.attackFx.t<=0) state.attackFx=null; }
     // input → velocity
     let ax=0, ay=0;
     if (state.keys['ArrowLeft']||state.keys['a']) ax-=1;
@@ -799,7 +927,7 @@
     if (state.keys['ArrowDown']||state.keys['s']) ay+=1;
     if (state.pointer){ ax=state.pointer.dx; ay=state.pointer.dy; }
     const mag=Math.hypot(ax,ay);
-    const speed = 230 + state.size*2;
+    const speed = (230 + state.size*2) * (state.effects.speed>0 ? 1.7 : 1);
     if (mag>0.05){ ax/=Math.max(mag,1); ay/=Math.max(mag,1); p.vx=ax*speed; p.vy=ay*speed; if(Math.abs(ax)>0.1)p.facing=ax>0?1:-1; }
     else { p.vx*=0.86; p.vy*=0.86; }
     p.x+=p.vx*dt; p.y+=p.vy*dt;
@@ -838,7 +966,8 @@
     state.lions.forEach(o=>{
       o.retarget-=dt;
       const dx=p.x-o.x, dy=p.y-o.y, d=Math.hypot(dx,dy)||1;
-      const big = o.size > state.size;
+      // Roar makes EVERY lion flee; otherwise only higher-level lions chase
+      const big = (state.effects.roar>0) ? false : (o.level > playerLevel());
       const seeRange = o.hyena?420:320;
       if (d<seeRange){
         const dir = big?1:-1;     // bigger chases, smaller flees
@@ -857,25 +986,25 @@
     for(let i=state.lions.length-1;i>=0;i--){
       const o=state.lions[i];
       if (dist(o,p) < p.r + o.r*0.7){
-        if (o.size > state.size + 0.3){
-          // they get you → lose a heart, knockback
+        const beatable = o.level <= playerLevel();
+        if (state.effects.roar>0){
+          defeatLion(i,o,'Roar! +');                 // Roar: bump-defeat anything
+        } else if (beatable){
+          defeatLion(i,o,'Win! +');                  // lower/equal level: bump-defeat
+        } else if (state.effects.shield>0 || state.invuln>0){
+          // protected — the predator bounces off, no harm done
+          burst(p.x,p.y,'#e2483a',12);
+          addFloater(p.x,p.y,'Blocked! 🛡️','#e2483a'); beep(300,0.1,'square',0.05);
+          state.lions.splice(i,1); spawnLion();
+        } else {
+          // a bigger predator gets you → lose a heart
           state.hearts--; state.screenShake=14; sRoar();
           addFloater(p.x,p.y,'−1 ❤️','#b03a2e');
           burst(p.x,p.y,'#e25b4a',16);
-          // knock the predator away & respawn it elsewhere
           state.lions.splice(i,1); spawnLion();
           state.size=Math.max(1,state.size-1);
           updateHUD();
           if(state.hearts<=0){ gameOver(o.hyena?'The hyenas got you!':'A bigger lion got you!','Out of hearts — but what a hunt!'); return; }
-        } else {
-          // you pounce them → points + grow
-          state.lions.splice(i,1);
-          const gain = 8 + Math.round(o.size*3);
-          state.score+=gain; state.size+=1;
-          addFloater(o.x,o.y,'Pounce! +'+gain,'#2f7d3a'); sEat();
-          burst(o.x,o.y,'#ffcf5a',12);
-          spawnLion();
-          updateHUD();
         }
       }
     }
@@ -907,10 +1036,30 @@
       if (state.nextMathAt<=0) startMath();
     }
 
+    // power-ups: bob in place, collect on touch
+    state.powerups.forEach(o=>{ o.wob+=dt*3; });
+    for(let i=state.powerups.length-1;i>=0;i--){
+      const o=state.powerups[i];
+      if(dist(o,p) < p.r + o.r){
+        const pw=POWERS[o.kind];
+        state.effects[o.kind]=pw.dur;
+        state.powerups.splice(i,1);
+        addFloater(o.x,o.y,pw.emoji+' '+pw.name+'!',pw.color);
+        burst(o.x,o.y,pw.color,22);
+        beep(700,0.14,'triangle',0.06);
+        showToast(pw.emoji+' '+pw.name+' on!','good');
+      }
+    }
+    state.nextPowerupAt-=dt;
+    if (state.nextPowerupAt<=0 && state.powerups.length<2){ spawnPowerup(); state.nextPowerupAt=rand(9,15); }
+
     // keep population up
     state.nextPreyAt-=dt;
     if (state.nextPreyAt<=0 && state.prey.length<14){ spawnPrey(); state.nextPreyAt=rand(1.5,3); }
     if (state.lions.length<4 && Math.random()<dt*0.4) spawnLion();
+
+    updatePowerBanner();
+    updateActionButtons();
 
     // particles & floaters
     state.particles.forEach(pt=>{ pt.x+=pt.vx*dt; pt.y+=pt.vy*dt; pt.vy+=140*dt; pt.life-=dt; });
@@ -959,6 +1108,16 @@
 
     // entities
     state.prey.forEach(o=>drawEmoji(o.emoji, o.x, o.y, o.r*2, Math.sin(o.wob)*0.1));
+    // power-ups (glowing badges)
+    state.powerups.forEach(o=>{
+      const pw=POWERS[o.kind]; const bob=Math.sin(o.wob)*5;
+      ctx.save(); ctx.translate(o.x, o.y+bob);
+      ctx.shadowColor=pw.color; ctx.shadowBlur=18;
+      ctx.fillStyle='#fff'; ctx.strokeStyle=pw.color; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.arc(0,0,o.r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.shadowBlur=0; ctx.restore();
+      drawEmoji(pw.emoji, o.x, o.y+bob+1, o.r*1.25, 0);
+    });
     state.lions.forEach(o=>{
       drawLion(ctx,o.x,o.y,o.r,{coat:o.coat,mane:(o.hyena?null:'#5a3a1c'),mane2:'#7a4a22'},1);
       drawEmoji(o.hyena?'🐾':'', o.x, o.y-o.r-12, 18, 0);
@@ -979,9 +1138,50 @@
       });
     }
 
-    // player
-    drawLion(ctx, state.player.x, state.player.y, state.player.r, state.player.def, state.player.facing);
-    // crown ring if special
+    // player + protective auras
+    const pl=state.player;
+    // Roar aura (orange ring) behind the lion
+    if (state.effects.roar>0){
+      ctx.save();
+      const rr=pl.r*(1.45+0.1*Math.sin(state.tAccum*8));
+      ctx.strokeStyle='rgba(255,138,30,0.85)'; ctx.lineWidth=6;
+      ctx.beginPath(); ctx.arc(pl.x,pl.y,rr,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+    drawLion(ctx, pl.x, pl.y, pl.r, pl.def, pl.facing);
+    // Shield bubble (red) covers and protects the lion
+    if (state.effects.shield>0 || state.invuln>0){
+      ctx.save();
+      const rr=pl.r*1.55;
+      ctx.fillStyle='rgba(226,72,58,'+(0.16+0.06*Math.sin(state.tAccum*6))+')';
+      ctx.strokeStyle='rgba(226,72,58,0.9)'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.arc(pl.x,pl.y,rr,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      // a soft highlight on the bubble
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(pl.x-rr*0.3, pl.y-rr*0.35, rr*0.45, Math.PI*1.1, Math.PI*1.7); ctx.stroke();
+      ctx.restore();
+    }
+    // attack flash
+    if (state.attackFx){
+      const fx=state.attackFx, a=Math.max(0,fx.t/0.3);
+      ctx.save(); ctx.translate(pl.x,pl.y); ctx.globalAlpha=a;
+      if (fx.kind==='scratch'){
+        ctx.strokeStyle='#fff'; ctx.lineWidth=4; ctx.lineCap='round';
+        for(let k=-1;k<=1;k++){ const off=k*14;
+          ctx.beginPath(); ctx.moveTo(fx.facing*pl.r*0.5+off,-pl.r*0.9); ctx.lineTo(fx.facing*pl.r*1.7+off,pl.r*0.9); ctx.stroke(); }
+      } else if (fx.kind==='bite'){
+        ctx.strokeStyle='#fff'; ctx.lineWidth=5;
+        ctx.beginPath(); ctx.arc(fx.facing*pl.r*0.9,0,pl.r*0.95,-0.8,0.8); ctx.stroke();
+        ctx.beginPath(); ctx.arc(fx.facing*pl.r*0.9,0,pl.r*0.6,-0.8,0.8); ctx.stroke();
+      } else { // pounce ring
+        ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=5;
+        const rr=pl.r*(1.1+(1-a)*1.6); ctx.beginPath(); ctx.arc(0,0,rr,0,Math.PI*2); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    // level badges on every lion (and Iris) so she can size up a fight at a glance
+    state.lions.forEach(o=>drawLevelBadge(o.x,o.y,o.r,o.level,false));
+    drawLevelBadge(pl.x,pl.y,pl.r,playerLevel(),true);
     // particles
     state.particles.forEach(pt=>{
       ctx.globalAlpha=Math.max(0,pt.life/pt.max);
@@ -1033,6 +1233,19 @@
     c.beginPath();
     c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
     c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+  }
+  // Floating "Lv N" tag above a lion. Green = Iris can take it, red = it out-levels her.
+  function drawLevelBadge(x,y,r,level,isPlayer){
+    const txt = (isPlayer?'★ Lv ':'Lv ')+level;
+    ctx.save();
+    ctx.font='bold 19px Trebuchet MS, sans-serif';
+    const w=ctx.measureText(txt).width+16, h=24, by=y-r-15;
+    const bg = isPlayer ? '#1f6fd6' : (level>playerLevel() ? '#d8362a' : '#2f9d46');
+    ctx.fillStyle=bg; ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.lineWidth=2.5;
+    roundRect(ctx, x-w/2, by-h/2, w, h, 9); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(txt, x, by+1);
+    ctx.restore();
   }
 
   // ===== Main loop =====
@@ -1109,6 +1322,10 @@
   window.addEventListener('keydown',e=>{
     if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
     if(e.key===' '||e.key==='p'||e.key==='P'){ if(state.running) pauseGame(!state.paused); return; }
+    const k=e.key.toLowerCase();
+    if(k==='j'){ doAttack('scratch'); return; }
+    if(k==='k'){ doAttack('bite'); return; }
+    if(k==='l'){ doAttack('pounce'); return; }
     state.keys[e.key]=true;
   });
   window.addEventListener('keyup',e=>{ state.keys[e.key]=false; });
@@ -1143,6 +1360,12 @@
   $('lb-name-input').addEventListener('keydown',e=>{ if(e.key==='Enter') saveScore(); });
   $('mute-btn').onclick=()=>{ state.muted=!state.muted; $('mute-btn').textContent=state.muted?'🔇':'🔊'; };
   $('clear-lb-btn').onclick=()=>{ if(confirm('Clear the leaderboard?')){ saveLB([]); renderLeaderboard('start-leaderboard'); } };
+
+  // Fight-move buttons (pointerdown so taps respond instantly on iPad)
+  [['act-scratch','scratch'],['act-bite','bite'],['act-pounce','pounce']].forEach(([id,kind])=>{
+    const b=$(id);
+    if(b) b.addEventListener('pointerdown',e=>{ e.preventDefault(); doAttack(kind); });
+  });
 
   window.addEventListener('resize',()=>{ if(state.running) sizeCanvas(); });
 
