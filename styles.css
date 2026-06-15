@@ -94,11 +94,17 @@ main {
   gap: 24px;
 }
 
-/* Reorder cards by whose mode is active — kid's own games come first */
-body.mode-iris  .card[data-for="iris"]   { order: 0; }
-body.mode-iris  .card[data-for="george"] { order: 1; }
-body.mode-george .card[data-for="george"] { order: 0; }
-body.mode-george .card[data-for="iris"]   { order: 1; }
+/* Small link to the sibling's site at the bottom of main */
+.sibling-link {
+  text-align: center;
+  margin: 32px auto 0;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+.sibling-link a {
+  color: var(--accent);
+  font-weight: 700;
+}
 
 .card {
   display: flex;
@@ -222,75 +228,16 @@ footer a { color: var(--accent); font-weight: 600; }
   line-height: 1.5;
 }
 
-/* ---------- Mode picker (Iris ↔ George) ---------- */
-.mode-picker {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 50;
-  display: inline-flex;
-  gap: 2px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(40, 50, 120, 0.12);
-}
-.mode-pill {
-  appearance: none;
-  border: none;
-  background: transparent;
-  padding: 7px 14px;
-  border-radius: 999px;
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-  color: var(--ink-soft);
-  transition: background 0.15s ease, color 0.15s ease;
-  white-space: nowrap;
-}
-.mode-pill:hover { color: var(--ink); }
-.mode-pill.active {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* ---------- Editable title ---------- */
+/* ---------- Title row container (used by both pages) ---------- */
 .title-row {
   display: inline-flex;
   align-items: center;
   gap: 10px;
 }
-#hub-title { outline: none; }
-#hub-title[contenteditable="true"] {
-  background: rgba(255, 255, 255, 0.95) !important;
-  -webkit-text-fill-color: var(--ink) !important;
-  background-clip: unset !important;
-  padding: 4px 18px;
-  border-radius: 14px;
-  box-shadow: 0 0 0 2px var(--accent), 0 6px 20px rgba(40, 50, 120, 0.18);
-}
-.title-edit {
-  appearance: none;
-  border: none;
-  background: transparent;
-  font-size: 1.05rem;
-  opacity: 0.4;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.title-edit:hover { opacity: 0.9; transform: scale(1.1); }
-
-/* Hide the alternate-mode tagline based on body class */
-.mode-iris .tagline--george,
-.mode-george .tagline--iris { display: none; }
 
 /* ============================================================
    GEORGE MODE — Nike-inspired: black, white, volt-orange, bold
+   Applied to /gaminghub/ via <body class="mode-george">
    ============================================================ */
 body.mode-george {
   background: linear-gradient(180deg, #0a0a0c 0%, #141417 60%, #1c1c20 100%);
@@ -323,39 +270,14 @@ body.mode-george .title-row::after {
   align-self: center;
   filter: drop-shadow(0 0 12px rgba(250, 84, 0, 0.5));
 }
-body.mode-george .title-edit { color: #fff; }
-
-body.mode-george .tagline {
-  color: rgba(255, 255, 255, 0.78);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
 body.mode-george .byline {
   color: rgba(255, 255, 255, 0.45);
   letter-spacing: 0.05em;
   font-style: normal;
 }
 
-body.mode-george .mode-picker {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-}
-body.mode-george .mode-pill { color: rgba(255, 255, 255, 0.65); }
-body.mode-george .mode-pill:hover { color: #fff; }
-body.mode-george .mode-pill.active {
-  background: #fa5400;
-  color: #fff;
-  box-shadow: 0 0 16px rgba(250, 84, 0, 0.45);
-}
-
-body.mode-george #hub-title[contenteditable="true"] {
-  background: #fff !important;
-  -webkit-text-fill-color: #0a0a0c !important;
-  box-shadow: 0 0 0 2px #fa5400, 0 6px 20px rgba(0, 0, 0, 0.5);
-}
+body.mode-george .sibling-link { color: rgba(255, 255, 255, 0.55); }
+body.mode-george .sibling-link a { color: #fa5400; }
 
 /* Cards: darken on George mode for cohesion */
 body.mode-george .card {
@@ -394,7 +316,5 @@ body.mode-george .disclaimer { opacity: 0.4; color: rgba(255, 255, 255, 0.7); }
   .sparkles { font-size: 1.4rem; letter-spacing: 0.4rem; }
   .card { min-height: 200px; padding: 24px 20px; }
   .card__emoji { font-size: 2.4rem; }
-  .mode-picker { top: 10px; right: 10px; }
-  .mode-pill { padding: 6px 11px; font-size: 0.76rem; }
   body.mode-george .title-row::after { width: 30px; height: 11px; }
 }

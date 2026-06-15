@@ -3,31 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Angela's Workshop — fun things for my kids</title>
-  <link rel="stylesheet" href="styles.css?v=20260615b" />
+  <title>Angela's Workshop — fun things for Iris</title>
+  <link rel="stylesheet" href="styles.css?v=20260615c" />
 </head>
-<body class="mode-iris">
-  <div class="mode-picker" role="tablist" aria-label="Whose view?">
-    <button class="mode-pill" data-mode="iris" type="button">👧 Iris</button>
-    <button class="mode-pill" data-mode="george" type="button">🧒 George</button>
-  </div>
+<body>
   <header class="hero">
     <div class="sparkles" aria-hidden="true">
-      <span>✨</span><span>🐉</span><span>🌟</span><span>π</span><span>🚀</span><span>🎨</span>
+      <span>✨</span><span>🐉</span><span>🌟</span><span>🦄</span><span>🚀</span><span>🎨</span>
     </div>
-    <div class="title-row">
-      <h1 id="hub-title" spellcheck="false">Angela's Workshop</h1>
-      <button class="title-edit" id="title-edit" type="button" aria-label="Edit title">✏️</button>
-    </div>
-    <p class="tagline tagline--iris">A personal little corner of the internet where I build silly, playful things for my kids — with <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude</a> as my co-pilot.</p>
-    <p class="tagline tagline--george">Built different. Built with <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude</a>. Built for the win.</p>
-    <p class="byline">Made with love by Mom · for Iris & George</p>
+    <h1>Angela's Workshop</h1>
+    <p class="tagline">A personal little corner of the internet where I build silly, playful things for my kids — with <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude</a> as my co-pilot.</p>
+    <p class="byline">Made with love by Mom · for Iris</p>
   </header>
 
   <main>
     <section class="cards">
 
-      <a class="card card--coloring" data-for="iris" href="https://angelakim0126.github.io/wings-of-fire-coloring/">
+      <a class="card card--coloring" href="https://angelakim0126.github.io/wings-of-fire-coloring/">
         <div class="card__emoji">🎨</div>
         <h2>Wings of Fire Coloring</h2>
         <p class="card__for">For Iris</p>
@@ -35,7 +27,7 @@
         <span class="card__cta">Open →</span>
       </a>
 
-      <a class="card card--snake" data-for="iris" href="https://angelakim0126.github.io/dragon-math-quest/">
+      <a class="card card--snake" href="https://angelakim0126.github.io/dragon-math-quest/">
         <div class="card__emoji">🐉</div>
         <h2>Dragon Math Quest</h2>
         <p class="card__for">For Iris</p>
@@ -43,7 +35,7 @@
         <span class="card__cta">Play →</span>
       </a>
 
-      <a class="card card--pi-iris" data-for="iris" href="https://angelakim0126.github.io/pi-iris/">
+      <a class="card card--pi-iris" href="https://angelakim0126.github.io/pi-iris/">
         <div class="card__emoji">🦄</div>
         <h2>Iris's Pi Quest</h2>
         <p class="card__for">For Iris</p>
@@ -51,7 +43,7 @@
         <span class="card__cta">Start →</span>
       </a>
 
-      <a class="card card--cosmic" data-for="iris" href="https://angelakim0126.github.io/iris-math/">
+      <a class="card card--cosmic" href="https://angelakim0126.github.io/iris-math/">
         <div class="card__emoji">🚀</div>
         <h2>Cosmic Math</h2>
         <p class="card__for">For Iris</p>
@@ -59,100 +51,14 @@
         <span class="card__cta">Blast off →</span>
       </a>
 
-      <a class="card card--pi-george" data-for="george" href="https://angelakim0126.github.io/pi/">
-        <div class="card__emoji">π</div>
-        <h2>Pi Digits Challenge</h2>
-        <p class="card__for">For George</p>
-        <p class="card__desc">Push your memory of π toward 200 digits — Learn, Test, Type-Ahead, Fill-the-Blanks, and a new <b>Defend π</b> shooter mode.</p>
-        <span class="card__cta">Begin →</span>
-      </a>
-
-      <a class="card card--storm" data-for="george" href="https://angelakim0126.github.io/geometry-storm/">
-        <div class="card__emoji">🛸</div>
-        <h2>Geometry Storm</h2>
-        <p class="card__for">For George</p>
-        <p class="card__desc">A neon twin-stick shooter — survive waves, build combos, beat bosses, and chase the high score.</p>
-        <span class="card__cta">Blast →</span>
-      </a>
-
     </section>
+
+    <p class="sibling-link">Looking for George's games? <a href="https://angelakim0126.github.io/gaminghub/">Angela's Game Hub →</a></p>
   </main>
 
   <footer>
     <p>Built with <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> · Source on <a href="https://github.com/angelakim0126" target="_blank" rel="noopener">GitHub</a></p>
     <p class="disclaimer">Personal, non-commercial fan projects · Not affiliated with Scholastic, Tui T. Sutherland, or my employer · Wings of Fire characters © Scholastic / Tui T. Sutherland</p>
   </footer>
-
-  <script>
-    (function () {
-      var STORE = 'hub-prefs-v2';
-      var defaults = {
-        mode: 'iris',
-        titleIris: "Angela's Workshop",
-        titleGeorge: "Angela's Game Hub"
-      };
-      function load() {
-        try { return Object.assign({}, defaults, JSON.parse(localStorage.getItem(STORE) || '{}')); }
-        catch (e) { return Object.assign({}, defaults); }
-      }
-      function save(p) {
-        try { localStorage.setItem(STORE, JSON.stringify(p)); } catch (e) {}
-      }
-      var prefs = load();
-      var body = document.body;
-      var title = document.getElementById('hub-title');
-      var titleEdit = document.getElementById('title-edit');
-      var pills = document.querySelectorAll('.mode-pill');
-
-      function currentTitle() {
-        return prefs.mode === 'iris' ? prefs.titleIris : prefs.titleGeorge;
-      }
-      function apply() {
-        body.classList.remove('mode-iris', 'mode-george');
-        body.classList.add('mode-' + prefs.mode);
-        title.textContent = currentTitle();
-        pills.forEach(function (p) {
-          var active = p.dataset.mode === prefs.mode;
-          p.classList.toggle('active', active);
-          p.setAttribute('aria-selected', active ? 'true' : 'false');
-        });
-      }
-
-      pills.forEach(function (p) {
-        p.addEventListener('click', function () {
-          if (title.isContentEditable) title.blur();
-          prefs.mode = p.dataset.mode;
-          save(prefs);
-          apply();
-        });
-      });
-
-      function startEdit() {
-        title.contentEditable = 'true';
-        title.focus();
-        var range = document.createRange();
-        range.selectNodeContents(title);
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-      function endEdit() {
-        title.contentEditable = 'false';
-        var v = (title.textContent || '').replace(/\s+/g, ' ').trim();
-        if (!v) v = prefs.mode === 'iris' ? defaults.titleIris : defaults.titleGeorge;
-        title.textContent = v;
-        if (prefs.mode === 'iris') prefs.titleIris = v; else prefs.titleGeorge = v;
-        save(prefs);
-      }
-      titleEdit.addEventListener('click', startEdit);
-      title.addEventListener('blur', endEdit);
-      title.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') { e.preventDefault(); title.blur(); }
-        if (e.key === 'Escape') { title.textContent = currentTitle(); title.blur(); }
-      });
-
-      apply();
-    })();
-  </script>
 </body>
 </html>
