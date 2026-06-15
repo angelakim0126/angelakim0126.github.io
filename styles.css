@@ -73,6 +73,22 @@ h1 {
   line-height: 1.6;
 }
 
+/* ---------- Hero visual: mountain + Isa ---------- */
+.hero-visual {
+  width: 100%;
+  max-width: 620px;
+  margin: 8px auto 18px;
+}
+.hero-visual .mountain {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 8px 18px rgba(60, 40, 120, 0.10));
+}
+.hero-visual .mountain image {
+  filter: drop-shadow(0 3px 8px rgba(60, 40, 120, 0.25));
+}
+
 .byline {
   font-size: 0.95rem;
   color: var(--ink-soft);
