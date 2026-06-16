@@ -731,7 +731,10 @@
     state.powerups.push({x,y,kind,r:24,wob:Math.random()*6});
   }
 
-  function playerRadius(){ return 22 + state.size*4; }
+  // Body radius grows sub-linearly (√level) and is capped, so high-level lions
+  // don't balloon and crowd the savanna. Levels keep climbing; size barely does.
+  function lionRadius(lv){ return Math.min(70, 24 + 8.5*Math.sqrt(Math.max(0, lv-1))); }
+  function playerRadius(){ return lionRadius(state.size); }
   // Iris's fighting LEVEL — the number shown on her badge and used to decide fights.
   function playerLevel(){ return Math.max(1, Math.round(state.size)); }
 
@@ -757,7 +760,7 @@
     const hyena = Math.random() < (land.id==='outlands'?0.5:0.28);
     state.lions.push({
       x,y,vx:rand(-40,40),vy:rand(-40,40),
-      level, r:22+level*4, hyena,
+      level, r:lionRadius(level), hyena,
       emoji: hyena? HYENA : choice(PRED_EMOJI),
       coat: hyena? '#8a8472' : choice(['#caa15a','#b8893f','#9c7a4a','#d8b06a']),
       retarget:0,
