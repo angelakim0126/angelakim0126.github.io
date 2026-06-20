@@ -225,7 +225,7 @@
     <details class="how-to-play">
       <summary>How to play</summary>
       <ul>
-        <li>🎮 <strong>Move</strong> with arrow keys, WASD, or drag/touch on iPad.</li>
+        <li>🎮 <strong>Move</strong> with arrow keys / WASD, or on a phone/iPad just <strong>touch where you want to go</strong> — your lion walks right to your finger and stops there.</li>
         <li>🐢 <strong>Eat other animals</strong> (turtles, fish, gazelles) for points and to grow.</li>
         <li>🏷️ Every lion shows its <strong>level</strong> on a badge — <span style="color:#2f9d46;font-weight:bold">green</span> means you can beat it, <span style="color:#d8362a;font-weight:bold">red</span> means it out-levels you. Your own level (★) is on Iris. Beat lions and answer math to level up!</li>
         <li>🥊 <strong>Fight other lions</strong> three ways: <strong>Scratch</strong> (J) is quick and hits all around you (same level or lower), <strong>Bite</strong> (K) is strong enough to beat lions up to 2 levels higher, and <strong>Jump-on</strong> (L) leaps at the nearest lion (up to 1 level higher). Run from much higher-level lions and hyenas!</li>
@@ -403,7 +403,7 @@
     cooldowns:{scratch:0,bite:0,pounce:0},
     attackFx:null, invuln:0, tAccum:0,
     cam:{x:0,y:0},
-    keys:{}, pointer:null,
+    keys:{}, target:null,
     timesTable:2, timesB:1, lastGeniusKind:null,
     muted:false,
     lastTs:0, accTimer:0,
@@ -707,7 +707,7 @@
     state.math=null; state.mathActive=false; state.mathDeadline=0;
     state.effects={shield:0,roar:0,speed:0};
     state.cooldowns={scratch:0,bite:0,pounce:0};
-    state.attackFx=null; state.invuln=0; state.tAccum=0;
+    state.attackFx=null; state.invuln=0; state.tAccum=0; state.target=null;
     state.timesTable=2; state.timesB=1; state.lastGeniusKind=null;
     state.best = loadBest();
     state.player = {
@@ -928,7 +928,13 @@
     if (state.keys['ArrowRight']||state.keys['d']) ax+=1;
     if (state.keys['ArrowUp']||state.keys['w']) ay-=1;
     if (state.keys['ArrowDown']||state.keys['s']) ay+=1;
-    if (state.pointer){ ax=state.pointer.dx; ay=state.pointer.dy; }
+    const keyMag=Math.hypot(ax,ay);
+    // Touch/drag: head straight toward the finger's world position, and STOP
+    // when we get there (so a tap doesn't overshoot into danger). Keys win if held.
+    if (keyMag<0.05 && state.target){
+      const dx=state.target.x-p.x, dy=state.target.y-p.y, d=Math.hypot(dx,dy);
+      if (d>10){ ax=dx/d; ay=dy/d; } else { ax=0; ay=0; }
+    }
     const mag=Math.hypot(ax,ay);
     const speed = (230 + state.size*2) * (state.effects.speed>0 ? 1.7 : 1);
     if (mag>0.05){ ax/=Math.max(mag,1); ay/=Math.max(mag,1); p.vx=ax*speed; p.vy=ay*speed; if(Math.abs(ax)>0.1)p.facing=ax>0?1:-1; }
@@ -1109,6 +1115,15 @@
     // ground texture: scattered tufts / rocks
     drawGroundDetail(land);
 
+    // touch target marker (where the lion is heading)
+    if (state.target){
+      ctx.save();
+      ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(state.target.x,state.target.y,16+3*Math.sin(state.tAccum*8),0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle='rgba(246,183,60,0.9)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(state.target.x,state.target.y,9,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
     // entities
     state.prey.forEach(o=>drawEmoji(o.emoji, o.x, o.y, o.r*2, Math.sin(o.wob)*0.1));
     // power-ups (glowing badges)
@@ -1333,23 +1348,24 @@
   });
   window.addEventListener('keyup',e=>{ state.keys[e.key]=false; });
 
-  // pointer / touch drag → relative direction from player center on screen
+  // Touch / mouse: the lion follows your finger. We map the touch point to the
+  // matching spot in the world (the whole arena is on screen), so the lion goes
+  // EXACTLY where you point — accurate on phone and iPad.
   function setupPointer(){
     const wrap=canvas.parentElement;
     let dragging=false;
     function handle(clientX,clientY){
       const rect=canvas.getBoundingClientRect();
-      const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-      let dx=clientX-cx, dy=clientY-cy;
-      const m=Math.hypot(dx,dy)||1;
-      // dead zone near center
-      if(m<14){ state.pointer=null; return; }
-      state.pointer={dx:dx/m, dy:dy/m};
+      if(rect.width<=0||rect.height<=0) return;
+      let fx=(clientX-rect.left)/rect.width;
+      let fy=(clientY-rect.top)/rect.height;
+      fx=Math.max(0,Math.min(1,fx)); fy=Math.max(0,Math.min(1,fy));
+      state.target={ x:fx*PLAY_W, y:fy*PLAY_H };
     }
-    wrap.addEventListener('pointerdown',e=>{ dragging=true; handle(e.clientX,e.clientY); });
-    wrap.addEventListener('pointermove',e=>{ if(dragging) handle(e.clientX,e.clientY); });
-    window.addEventListener('pointerup',()=>{ dragging=false; state.pointer=null; });
-    wrap.addEventListener('pointercancel',()=>{ dragging=false; state.pointer=null; });
+    wrap.addEventListener('pointerdown',e=>{ e.preventDefault(); dragging=true; wrap.setPointerCapture&&wrap.setPointerCapture(e.pointerId); handle(e.clientX,e.clientY); });
+    wrap.addEventListener('pointermove',e=>{ if(dragging){ e.preventDefault(); handle(e.clientX,e.clientY); } });
+    window.addEventListener('pointerup',()=>{ dragging=false; state.target=null; });
+    wrap.addEventListener('pointercancel',()=>{ dragging=false; state.target=null; });
   }
 
   // ===== Buttons =====
