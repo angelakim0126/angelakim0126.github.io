@@ -244,6 +244,25 @@ main {
   color: #fa5400;
   border: 1px solid rgba(250, 84, 0, 0.4);
 }
+.card--dojo::before {
+  background: linear-gradient(135deg, #1b1d27 0%, #2f2413 55%, #12131a 100%);
+}
+.card--dojo,
+.card--dojo .card__desc,
+.card--dojo .card__for {
+  color: #f2f3f8;
+}
+.card--dojo h2 {
+  background: linear-gradient(90deg, #f5a623, #7dd3fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card--dojo .card__cta {
+  background: rgba(245, 166, 35, 0.18);
+  color: #f5a623;
+  border: 1px solid rgba(245, 166, 35, 0.4);
+}
 .card--storm,
 .card--storm .card__desc,
 .card--storm .card__for {
