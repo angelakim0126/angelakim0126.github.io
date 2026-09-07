@@ -219,6 +219,10 @@ main {
 .card--lionking::before {
   background: linear-gradient(135deg, #ffe39a 0%, #f6b73c 55%, #c8902f 100%);
 }
+.card--typing::before {
+  /* Isa's rainbow, softened */
+  background: linear-gradient(135deg, #ffd6de 0%, #fff0c2 25%, #d9f7d0 50%, #cfeaff 75%, #e6d6ff 100%);
+}
 .card--pi-george::before {
   background: linear-gradient(135deg, #fff3c4 0%, #ffd6a8 100%);
 }
