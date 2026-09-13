@@ -42,7 +42,7 @@
       (opts.flip ? ' flip' : '');
     const label = opts.silhouette ? 'mystery Pokemon' : p.name;
     return `<span class="${cls}">` +
-      `<img class="sprite" src="${DEX.SPRITE(p.dex)}" alt="${label}" loading="lazy" decoding="async"` +
+      `<img class="sprite" src="${DEX.SPRITE(p.spriteId || p.dex)}" alt="${label}" loading="lazy" decoding="async"` +
       ` onerror="this.classList.add('failed');this.nextElementSibling.classList.add('showing')">` +
       `<span class="drawn">${Art.svg(p, { silhouette: false })}</span></span>`;
   }
@@ -375,7 +375,7 @@
       <div class="detail-hero">
         ${pic(p, { className: "bob" })}
         <div>
-          <div class="dh-dex">#${p.dex} · ${REGIONS.find(r => r.id === p.region).name}${p.legend ? ' · <span class="legend-star">✨ legendary</span>' : ''}</div>
+          <div class="dh-dex">#${p.dex} · ${p.form === 'alola' ? 'Alolan form' : REGIONS.find(r => r.id === p.region).name}${p.legend ? ' · <span class="legend-star">✨ legendary</span>' : ''}</div>
           <div class="dh-name">${p.name}</div>
           ${p.genus ? `<div class="dh-genus">${p.genus}</div>` : ''}
           ${typeChips(p, true)}
@@ -715,18 +715,32 @@
      it), but we aim for a team of similar strength to hers rather than simply
      grabbing the strongest legendaries she happens to have studied. */
   function pickRivalTeam(pool, myTeam) {
-    const target = myTeam.reduce((s, f) => s + power(f.p), 0) / myTeam.length;
     const mine = myTeam.map(f => f.p.id);
     let options = pool.filter(p => canHarm(myTeam, p));
     if (!options.length) options = pool.slice();           // shouldn't happen, but stay safe
-    const fresh = options.filter(p => mine.indexOf(p.id) < 0);
-    if (fresh.length >= myTeam.length) options = fresh;    // prefer not mirroring her exact team
 
-    // sort by how close each one is to her average, then take a random few
-    // from the closest half so it isn't the same rival team every single time
-    const close = options.slice().sort((a, b) => Math.abs(power(a) - target) - Math.abs(power(b) - target));
-    const shortlist = close.slice(0, Math.max(myTeam.length, Math.ceil(close.length / 2)));
-    return sample(shortlist, myTeam.length);
+    /* Pair each of her Pokemon with a rival of about the same strength, rather
+       than matching the team average. Averaging looked fair but wasn't: a team
+       of Caterpie plus something decent averages out in the middle, and then
+       one middling rival walks through the Caterpie. */
+    const used = {};
+    return myTeam.map(f => {
+      const target = power(f.p);
+      const ranked = options.filter(p => !used[p.id])
+        .sort((a, b) => Math.abs(power(a) - target) - Math.abs(power(b) - target));
+      if (!ranked.length) return choice(options);
+      // prefer not to mirror her own pick
+      const fresh = ranked.filter(p => mine.indexOf(p.id) < 0);
+      const list = fresh.length ? fresh : ranked;
+      /* Variety, but only among genuinely comparable Pokemon. Picking freely
+         from "the closest four" sounds harmless and isn't: with a small pool
+         the fourth-closest can be twice the strength of the first. */
+      const band = list.filter(p => Math.abs(power(p) - target) <= Math.max(45, target * 0.2));
+      const from = band.length ? band.slice(0, 3) : list.slice(0, 1);
+      const pick = choice(from);
+      used[pick.id] = 1;
+      return pick;
+    });
   }
 
   function startBattle() {

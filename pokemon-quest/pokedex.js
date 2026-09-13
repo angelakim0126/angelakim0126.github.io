@@ -474,9 +474,13 @@ window.DEX = (function () {
   const CHAINS = [];       // e.g. ['charmander','charmeleon','charizard']
   const chainOf = {};      // id -> the chain it belongs to
 
+  /* Sort by Pokedex number. A regional form shares its number with the
+     original (Alolan Rattata is still #19), so nudge forms half a place
+     later and they line up right behind the Pokemon they are a version of. */
+  const sortKey = p => p.dex + (p.form ? 0.5 : 0);
   function reindex() {
     POKEMON.forEach(p => { byId[p.id] = p; });
-    POKEMON.sort((a, b) => a.dex - b.dex);
+    POKEMON.sort((a, b) => sortKey(a) - sortKey(b));
   }
   function add(list) { list.forEach(p => POKEMON.push(p)); reindex(); }
 
@@ -494,8 +498,11 @@ window.DEX = (function () {
     ALL_MOVES = d.M.map(([name, t, power]) => ({ name, type: d.T[t], power }));
     const abilities = d.A;
 
+    /* Regional forms deliberately share a number with the original, so they
+       must not claim its slot here — otherwise adding Alolan Rattata would
+       stop plain Rattata from ever loading. */
     const byDex = {};
-    POKEMON.forEach(p => { byDex[p.dex] = p; });
+    POKEMON.forEach(p => { if (!p.form) byDex[p.dex] = p; });
 
     d.P.forEach(row => {
       const [dex, id, name, region, t, hp, atk, def, spd, a, fact, genus, l, legend, art] = row;
