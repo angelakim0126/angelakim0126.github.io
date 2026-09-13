@@ -348,7 +348,7 @@
     const all = DEX.learnset(p);
     const chosen = battleMoves(p).map(mv => mv.name);
     return `<h3>⚡ Powers <span style="font-weight:700;color:var(--ink-soft);font-size:.76rem">
-        — all ${all.length}, tap to pick your ${BATTLE_SLOTS} for battle (${chosen.length}/${BATTLE_SLOTS})</span></h3>
+        — ${all.length} of them, tap to pick your ${BATTLE_SLOTS} for battle (${chosen.length}/${BATTLE_SLOTS})</span></h3>
       <div class="move-list">
         ${all.map(mv => `<button class="move-row selectable${chosen.indexOf(mv.name) >= 0 ? ' chosen' : ''}" data-mv="${mv.name}">
           <span class="mv-name">${chosen.indexOf(mv.name) >= 0 ? '⚔️ ' : ''}${mv.name}</span>
@@ -377,6 +377,7 @@
         <div>
           <div class="dh-dex">#${p.dex} · ${REGIONS.find(r => r.id === p.region).name}${p.legend ? ' · <span class="legend-star">✨ legendary</span>' : ''}</div>
           <div class="dh-name">${p.name}</div>
+          ${p.genus ? `<div class="dh-genus">${p.genus}</div>` : ''}
           ${typeChips(p, true)}
         </div>
       </div>

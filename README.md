@@ -10,7 +10,7 @@ Landing page for personal projects I've built with Claude for my kids:
 - 🦁 [Lion King Math Quest](https://angelakim0126.github.io/lion-king-math/) — for Iris
 - ⌨️ [Isa's Typing Quest](https://angelakim0126.github.io/typing-quest/) — for Iris (touch-typing practice, starring her dragon Isa)
 - π [Pi Digits Challenge](https://angelakim0126.github.io/pi/) — for George
-- 🔴 [Iris's Secret Pokemon Quest](https://angelakim0126.github.io/pokemon-quest/) — for Iris (learn → quiz → battle, 166 Pokemon)
+- 🔴 [Iris's Secret Pokemon Quest](https://angelakim0126.github.io/pokemon-quest/) — for Iris (learn → quiz → battle, all 1025 Pokemon)
 
 ### Iris's Secret Pokemon Quest
 
@@ -26,3 +26,12 @@ brother, so you reach it by typing the URL. It also asks for a secret word on ev
 
 Pictures come from PokeAPI's official-artwork sprites, with hand-drawn SVG fallbacks
 (`pokemon-quest/art.js`) that appear automatically if there's no internet.
+
+**Where the Pokemon data comes from**
+
+- `pokedex.js` + `dex-more-*.js` — 166 hand-written entries with abilities and facts in
+  kid language, and proper hand-drawn art. These take priority.
+- `dex-all.js` — generated, all 1025 Pokemon so there are no gaps in the numbers.
+  Don't hand-edit it. Regenerate with `node pokemon-quest/fetch-dex.js`, which pulls
+  stats, types, abilities, Pokedex text, learnsets and evolution lines from PokeAPI
+  (responses are cached under the scratch dir, so re-runs are cheap).

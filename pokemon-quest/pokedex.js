@@ -479,6 +479,74 @@ window.DEX = (function () {
     POKEMON.sort((a, b) => a.dex - b.dex);
   }
   function add(list) { list.forEach(p => POKEMON.push(p)); reindex(); }
+
+  /* -------------------------------------------------------------------------
+     loadAll — unpacks the generated dex-all.js (every Pokemon, Kanto through
+     Paldea, so there are no gaps in the numbers). It is stored as compact
+     arrays with shared tables for types, abilities and moves, which keeps the
+     file about a quarter of the size it would otherwise be.
+
+     Anything already hand-written in this file or dex-more-*.js is kept as-is:
+     those have abilities and facts written in kid language, so they win.
+     ------------------------------------------------------------------------- */
+  let ALL_MOVES = [];
+  function loadAll(d) {
+    ALL_MOVES = d.M.map(([name, t, power]) => ({ name, type: d.T[t], power }));
+    const abilities = d.A;
+
+    const byDex = {};
+    POKEMON.forEach(p => { byDex[p.dex] = p; });
+
+    d.P.forEach(row => {
+      const [dex, id, name, region, t, hp, atk, def, spd, a, fact, genus, l, legend, art] = row;
+      // A hand-written version wins. Match on the Pokedex number as well as
+      // the id, because a few of ours are spelled differently from PokeAPI's
+      // (we wrote "hooh" and "tapukoko", it says "ho-oh" and "tapu-koko").
+      const mine = byId[id] || byDex[dex];
+      if (mine) {
+        if (!mine.genus) mine.genus = genus;   // but take the genus, we never wrote those
+        if (!mine.learn) mine.learn = l;       // and its real learnset
+        return;
+      }
+      POKEMON.push({
+        id, name, dex, region,
+        types: t.map(i => d.T[i]),
+        hp, atk, def, spd,
+        abilities: a.map(i => abilities[i][0] + ' — ' + abilities[i][1]),
+        fact, genus,
+        learn: l,                           // indices into ALL_MOVES
+        get moves() {                       // the four it brings to a battle
+          if (!this._m) this._m = defaultFour(this);
+          return this._m;
+        },
+        legend: !!legend,
+        art
+      });
+    });
+
+    if (d.C) addChains(d.C);
+    reindex();
+  }
+
+  /* Pick a sensible four from a learnset: keep its own types where possible and
+     spread them over the power range, so nothing turns up with four weak moves
+     or four near-identical ones. */
+  function defaultFour(p) {
+    const all = (p.learn || []).map(i => ALL_MOVES[i]).filter(Boolean);
+    if (!all.length) return [{ name: 'Tackle', type: 'Normal', power: 40 }];
+    const own = all.filter(mv => p.types.indexOf(mv.type) >= 0);
+    const from = own.length >= 3 ? own : all;
+    const sorted = from.slice().sort((a, b) => a.power - b.power);
+    const at = f => sorted[Math.min(sorted.length - 1, Math.floor(f * sorted.length))];
+    const out = [];
+    [0, .45, .75, .99].forEach(f => { const mv = at(f); if (out.indexOf(mv) < 0) out.push(mv); });
+    // top up from the rest if the spread produced duplicates
+    for (const mv of sorted) { if (out.length >= 4) break; if (out.indexOf(mv) < 0) out.push(mv); }
+    return out.sort((a, b) => a.power - b.power);
+  }
+
+  const moveAt = i => ALL_MOVES[i];
+  const fullLearnset = p => (p.learn || []).map(i => ALL_MOVES[i]).filter(Boolean);
   /* Accepts a plain chain  ['charmander','charmeleon','charizard']
      or a labelled set     { label:'Eevee can become', ids:[...] }  */
   function addChains(list) {
@@ -504,7 +572,7 @@ window.DEX = (function () {
 
   return {
     REGIONS, TYPE_COLOR, CHART, effectiveness, POKEMON, byId, byRegion,
-    add, addChains, CHAINS, evoLine, SPRITE:
+    add, addChains, CHAINS, evoLine, loadAll, moveAt, fullLearnset, SPRITE:
       dex => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dex}.png`
   };
 })();

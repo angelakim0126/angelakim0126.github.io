@@ -164,9 +164,26 @@
 
   const cache = {};
 
-  /* Every power this Pokemon can use, weakest first. */
+  /* Every power this Pokemon can use, weakest first.
+     Pokemon that came from dex-all.js carry their real learnset from PokeAPI,
+     so we use that. The hand-written ones fall through to the type-based
+     builder below. */
   function learnset(p) {
     if (cache[p.id]) return cache[p.id];
+    if (p.learn && p.learn.length) {
+      const real = window.DEX.fullLearnset(p);
+      if (real.length) {
+        const seen = {}, out = [];
+        // its four signature powers first (hand-written ones may not be in the
+        // PokeAPI list under the same name), then everything it can learn
+        p.moves.concat(real).forEach(mv => {
+          if (!seen[mv.name]) { seen[mv.name] = 1; out.push(mv); }
+        });
+        out.sort((a, b) => a.power - b.power || a.name.localeCompare(b.name));
+        cache[p.id] = out;
+        return out;
+      }
+    }
     const cap = powerCap(p);
     const rnd = seeded(p.dex + 7);
     const out = [];

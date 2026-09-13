@@ -187,6 +187,7 @@ h3 { font-size: 1rem; font-weight: 800; color: var(--accent-2); }
 .detail-hero .critter-box { width: 110px; height: 110px; flex: 0 0 110px; }
 .detail-hero .dh-name { font-size: 1.45rem; font-weight: 800; line-height: 1.1; }
 .detail-hero .dh-dex { font-size: .8rem; color: var(--ink-soft); }
+.detail-hero .dh-genus { font-size: .8rem; color: var(--ink-soft); font-weight: 800; margin-bottom: 2px; }
 
 .stat-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: .84rem; }
 .stat-row .sr-label { width: 3.6em; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; font-size: .7rem; letter-spacing: .05em; }
