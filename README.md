@@ -14,8 +14,9 @@ Landing page for personal projects I've built with Claude for my kids:
 
 ### Iris's Secret Pokemon Quest
 
-Deliberately **not linked from the landing page** — Iris asked for it to be secret from her
-brother, so you reach it by typing the URL. It also asks for a secret word on every load.
+Linked from the landing page, and gated by a secret word that it asks for on every load.
+(It started out unlinked, on the grounds that Iris wanted it secret from her brother — she
+asked for the card later. He can see the card exists; he just can't get in.)
 
 - Secret word: `Dratini` (case doesn't matter). Stored only as a scrambled hash in
   `pokemon-quest/game.js`, so it isn't sitting in the source in plain text.

@@ -223,6 +223,10 @@ main {
   /* Isa's rainbow, softened */
   background: linear-gradient(135deg, #ffd6de 0%, #fff0c2 25%, #d9f7d0 50%, #cfeaff 75%, #e6d6ff 100%);
 }
+.card--pokemon::before {
+  /* Poke Ball, softened: red top, white band, a hint of sky */
+  background: linear-gradient(135deg, #ffbcbc 0%, #fff4f4 48%, #d6e9ff 100%);
+}
 .card--pi-george::before {
   background: linear-gradient(135deg, #fff3c4 0%, #ffd6a8 100%);
 }
