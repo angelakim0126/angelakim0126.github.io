@@ -10,3 +10,19 @@ Landing page for personal projects I've built with Claude for my kids:
 - 🦁 [Lion King Math Quest](https://angelakim0126.github.io/lion-king-math/) — for Iris
 - ⌨️ [Isa's Typing Quest](https://angelakim0126.github.io/typing-quest/) — for Iris (touch-typing practice, starring her dragon Isa)
 - π [Pi Digits Challenge](https://angelakim0126.github.io/pi/) — for George
+- 🔴 [Iris's Secret Pokemon Quest](https://angelakim0126.github.io/pokemon-quest/) — for Iris (learn → quiz → battle, 166 Pokemon)
+
+### Iris's Secret Pokemon Quest
+
+Deliberately **not linked from the landing page** — Iris asked for it to be secret from her
+brother, so you reach it by typing the URL. It also asks for a secret word on every load.
+
+- Secret word: `Dratini` (case doesn't matter). Stored only as a scrambled hash in
+  `pokemon-quest/game.js`, so it isn't sitting in the source in plain text.
+- Mom's spare key, if she ever forgets it: `momrules`.
+- She can change her own word from the "Change my secret word" link on the home screen.
+- It's a friendly lock, not real security — anyone determined could read the code. It's there
+  to keep a little brother out.
+
+Pictures come from PokeAPI's official-artwork sprites, with hand-drawn SVG fallbacks
+(`pokemon-quest/art.js`) that appear automatically if there's no internet.

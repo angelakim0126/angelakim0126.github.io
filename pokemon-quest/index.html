@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>Iris's Secret Pokemon Quest</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔴%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=20260912b">
+</head>
+<body>
+
+<!-- ===================== 1. THE SECRET DOOR ===================== -->
+<section id="screen-gate" class="screen active">
+  <div class="gate-wrap">
+    <div class="gate-card" id="gate-card">
+      <div class="gate-emoji">🔒</div>
+      <h1>Iris's Secret<br>Pokemon Quest</h1>
+      <p class="sub">Say the secret word to come in.</p>
+      <input id="gate-input" type="password" inputmode="text" autocomplete="off"
+             autocapitalize="off" spellcheck="false" placeholder="secret word" aria-label="Secret word">
+      <p class="gate-msg" id="gate-msg"></p>
+      <button id="gate-btn" class="big-btn">Open the door →</button>
+      <p class="gate-hint">Only Iris knows this one. 🐉</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. HOME / REGIONS ===================== -->
+<section id="screen-home" class="screen">
+  <div class="wrap">
+    <div class="center">
+      <h1>Iris's Secret Pokemon Quest</h1>
+      <p class="sub">Learn a Pokemon, get quizzed on it, then battle with it.<br>You can only battle with Pokemon you have really learned.</p>
+      <div class="badge-row" id="home-badges"></div>
+    </div>
+
+    <div class="section-title">
+      <h2>Pick a region</h2>
+      <span class="st-note" id="home-total"></span>
+    </div>
+    <div class="grid g3" id="region-grid"></div>
+
+    <div class="section-title"><h2>Ready to rumble?</h2></div>
+    <div class="center">
+      <button id="home-battle-btn" class="big-btn blue">⚔️ Pokemon Battle</button>
+      <button id="home-quiz-all-btn" class="big-btn">📋 Quiz me on everything</button>
+      <div id="home-battle-note"></div>
+      <button id="home-secret-btn" class="text-btn">Change my secret word</button>
+      <button id="home-reset-btn" class="text-btn">Start all over</button>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p class="dedication">Made with love for <span>Iris</span> — trainer, dragon rider, boss of Isa 🐉</p>
+    <p class="disclaimer">
+      A personal, non-commercial fan project made for one kid's amusement. Pokemon names,
+      characters and sprite artwork © Nintendo / Creatures Inc. / GAME FREAK — sprites are
+      loaded from PokeAPI, and the backup pictures are drawn from scratch for this page.
+      Not affiliated with or endorsed by any of them.
+    </p>
+    <a class="back-hub" href="../">← Back to Isa's Mountain</a>
+  </footer>
+</section>
+
+<!-- ===================== 3. POKEDEX (a region) ===================== -->
+<section id="screen-dex" class="screen">
+  <div class="topbar">
+    <button id="dex-back">← Regions</button>
+    <span class="tb-title" id="dex-title">Kanto</span>
+    <span class="tb-count" id="dex-count"></span>
+  </div>
+  <div class="wrap">
+    <p class="sub center" id="dex-hint">Tap a Pokemon to study its powers and abilities.</p>
+    <div class="grid g3" id="dex-grid" style="margin-top:12px"></div>
+    <div class="center" style="margin-top:18px">
+      <button id="dex-quiz-btn" class="big-btn">📋 Quiz me on Kanto</button>
+      <div id="dex-quiz-note"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 4. ONE POKEMON (study card) ===================== -->
+<div id="overlay-detail" class="overlay">
+  <div class="overlay-card" id="detail-card"></div>
+</div>
+
+<!-- ===================== 5. QUIZ ===================== -->
+<section id="screen-quiz" class="screen">
+  <div class="topbar">
+    <button id="quiz-quit">← Stop</button>
+    <span class="tb-title" id="quiz-title">Quiz</span>
+    <span class="tb-count" id="quiz-streak"></span>
+  </div>
+  <div class="wrap">
+    <div class="quiz-head">
+      <div class="qh-item"><div class="qh-label">Question</div><div class="qh-value" id="quiz-qnum">1/10</div></div>
+      <div class="qh-item"><div class="qh-label">Right</div><div class="qh-value" id="quiz-right">0</div></div>
+      <div class="qh-item"><div class="qh-label">Best streak</div><div class="qh-value" id="quiz-best">0</div></div>
+    </div>
+    <div class="progress"><i id="quiz-progress" style="width:0%"></i></div>
+    <div class="q-card" id="quiz-card"></div>
+  </div>
+</section>
+
+<!-- ===================== 6. PICK YOUR TEAM ===================== -->
+<section id="screen-team" class="screen">
+  <div class="topbar">
+    <button id="team-back">← Home</button>
+    <span class="tb-title">Pick your team</span>
+    <span class="tb-count" id="team-count">0/3</span>
+  </div>
+  <div class="wrap">
+    <p class="sub center">Choose up to 3 Pokemon you have learned. Your rival picks from the same ones.</p>
+    <div class="grid g3" id="team-grid" style="margin-top:12px"></div>
+    <div class="center" style="margin-top:16px">
+      <button id="team-go" class="big-btn blue">Start the battle! ⚔️</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 7. BATTLE ===================== -->
+<section id="screen-battle" class="screen">
+  <div class="topbar">
+    <button id="battle-quit">← Run away</button>
+    <span class="tb-title">Pokemon Battle</span>
+    <span class="tb-count" id="battle-record"></span>
+  </div>
+  <div class="wrap">
+    <div class="battle-stage">
+      <div class="battle-row foe">
+        <div class="hp-box" id="foe-hp"></div>
+        <div class="fighter" id="foe-fighter"></div>
+      </div>
+      <div class="battle-row mine">
+        <div class="fighter" id="my-fighter"></div>
+        <div class="hp-box" id="my-hp"></div>
+      </div>
+    </div>
+    <div class="battle-log" id="battle-log">A wild rival wants to battle!</div>
+    <div class="move-grid" id="move-grid"></div>
+    <div class="battle-actions">
+      <button id="berry-btn" class="berry-btn">🍓 Oran Berry (heal)</button>
+    </div>
+  </div>
+</section>
+
+<div id="toast" class="toast"></div>
+
+<script src="pokedex.js?v=20260912b"></script>
+<script src="dex-more-1.js?v=20260912b"></script>
+<script src="dex-more-2.js?v=20260912b"></script>
+<script src="dex-more-3.js?v=20260912b"></script>
+<script src="moves.js?v=20260912b"></script>
+<script src="art.js?v=20260912b"></script>
+<script src="game.js?v=20260912b"></script>
+</body>
+</html>
