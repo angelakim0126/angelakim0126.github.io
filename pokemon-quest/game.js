@@ -112,7 +112,7 @@
      save file
      ======================================================================= */
   const KEY = 'ipq_save_v1';
-  const blank = () => ({ learned: {}, quiz: {}, wins: 0, losses: 0, secret: null, chosen: {}, quizAll: false });
+  const blank = () => ({ learned: {}, quiz: {}, wins: 0, losses: 0, secret: null, chosen: {}, quizAll: false, battleAll: false });
   let S = blank();
   function load() {
     try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); }
@@ -270,14 +270,14 @@
       ? badges.join(' ') + ' <span style="font-size:.8rem;color:var(--ink-soft);font-weight:800">region badges!</span>'
       : '';
 
-    const canBattle = total >= 3;
-    $('home-battle-btn').disabled = !canBattle;
+    const canBattle = S.battleAll || total >= 3;
+    $('home-battle-btn').disabled = false;   // the team screen has the "All Pokemon" switch, so always let her in
     renderScope('home-scope');
     $('home-quiz-all-btn').disabled = !S.quizAll && total < 4;
     $('home-quiz-all-btn').textContent = S.quizAll ? '📋 Quiz me on every Pokemon' : '📋 Quiz me on everything I learned';
     $('home-battle-note').innerHTML = canBattle
       ? `<p class="sub">Record: <b>${S.wins}</b> wins · ${S.losses} losses</p>`
-      : `<p class="sub">Learn <b>${3 - total}</b> more Pokemon to unlock battles.</p>`;
+      : `<p class="sub">Learn <b>${3 - total}</b> more Pokemon to unlock battles, or battle with 🌍 All Pokemon.</p>`;
   }
 
   $('home-battle-btn').onclick = () => { sClick(); openTeamPick(); };
@@ -473,17 +473,18 @@
      any Pokemon, not just the ones she has already marked as learned. The two
      modes keep separate best scores so one doesn't overwrite the other. */
   const quizKey = region => (region || 'all') + (S.quizAll ? ':every' : '');
-  function renderScope(id) {
+  /* the "⭐ Only ones I learned / 🌍 All Pokemon" switch; `key` is the setting it flips */
+  function renderSwitch(id, key, after) {
     const box = $(id);
     box.innerHTML =
-      `<button class="scope-btn${S.quizAll ? '' : ' on'}" data-all="0">⭐ Only ones I learned</button>` +
-      `<button class="scope-btn${S.quizAll ? ' on' : ''}" data-all="1">🌍 All Pokemon</button>`;
+      `<button class="scope-btn${S[key] ? '' : ' on'}" data-all="0">⭐ Only ones I learned</button>` +
+      `<button class="scope-btn${S[key] ? ' on' : ''}" data-all="1">🌍 All Pokemon</button>`;
     box.querySelectorAll('.scope-btn').forEach(b => {
-      b.onclick = () => {
-        sClick(); S.quizAll = b.dataset.all === '1'; save();
-        if (id === 'dex-scope') renderDex(); else renderHome();
-      };
+      b.onclick = () => { sClick(); S[key] = b.dataset.all === '1'; save(); after(); };
     });
+  }
+  function renderScope(id) {
+    renderSwitch(id, 'quizAll', () => { if (id === 'dex-scope') renderDex(); else renderHome(); });
   }
 
   function resetQ() { Q.idx = 0; Q.right = 0; Q.streak = 0; Q.best = 0; Q.locked = false; }
@@ -776,29 +777,82 @@
   const TEAM_MAX = 3;
   let picks = [];
 
+  /* Iris's rule is that you battle with the Pokemon you have learned — that
+     stays the default. The "🌍 All Pokemon" switch lets her battle with any of
+     them instead, and then her rival picks from every Pokemon too. */
+  const team = { region: 'kanto', search: '' };
+  const battlePool = () => S.battleAll ? POKEMON : learnedList();
+
   function openTeamPick() {
-    const pool = learnedList();
-    if (pool.length < 3) { toast('Learn 3 Pokemon first!'); return; }
     picks = [];
-    const grid = $('team-grid'); grid.innerHTML = '';
-    pool.forEach(p => {
-      const c = monCard(p);
-      c.onclick = () => {
-        sClick();
-        const i = picks.indexOf(p.id);
-        if (i >= 0) picks.splice(i, 1);
-        else if (picks.length < TEAM_MAX) picks.push(p.id);
-        else { toast('Three is the limit!'); return; }
-        c.classList.toggle('selected', picks.indexOf(p.id) >= 0);
-        $('team-count').textContent = picks.length + '/' + TEAM_MAX;
-        $('team-go').disabled = picks.length === 0;
-      };
-      grid.appendChild(c);
-    });
-    $('team-count').textContent = '0/' + TEAM_MAX;
-    $('team-go').disabled = true;
+    team.search = ''; $('team-search').value = '';
+    renderTeamPick();
     show('team');
   }
+
+  function renderTeamPick() {
+    renderSwitch('team-scope', 'battleAll', () => {
+      const ok = battlePool();
+      picks = picks.filter(id => ok.some(p => p.id === id));   // drop picks the new mode doesn't allow
+      renderTeamPick();
+    });
+    $('team-filter').style.display = S.battleAll ? '' : 'none';
+    $('team-hint').textContent = S.battleAll
+      ? 'Choose any 3 Pokemon. Your rival picks from every Pokemon too.'
+      : 'Choose up to 3 Pokemon you have learned. Your rival picks from the same ones.';
+
+    if (S.battleAll) {
+      $('team-regions').innerHTML = REGIONS.map(r =>
+        `<button class="region-chip${!team.search && team.region === r.id ? ' on' : ''}" data-r="${r.id}">${r.emoji} ${r.name}</button>`).join('');
+      $('team-regions').querySelectorAll('.region-chip').forEach(b => {
+        b.onclick = () => { sClick(); team.region = b.dataset.r; team.search = ''; $('team-search').value = ''; renderTeamPick(); };
+      });
+    }
+
+    let list, note = '';
+    if (!S.battleAll) {
+      list = learnedList();
+      if (list.length < 3) note = `Learn <b>${3 - list.length}</b> more Pokemon to battle with your own team, or switch to <b>🌍 All Pokemon</b>.`;
+    } else if (team.search) {
+      const q = normWord(team.search);
+      list = POKEMON.filter(p => normWord(p.name).indexOf(q) >= 0).slice(0, 60);
+      if (!list.length) note = `No Pokemon called “${team.search}”.`;
+    } else {
+      list = byRegion(team.region);
+    }
+    $('team-note').innerHTML = note ? `<p class="sub">${note}</p>` : '';
+    if (!S.battleAll && list.length < 3) list = [];
+
+    const grid = $('team-grid'); grid.innerHTML = '';
+    list.forEach(p => {
+      const c = monCard(p, { cls: picks.indexOf(p.id) >= 0 ? ' selected' : '' });
+      c.onclick = () => { sClick(); togglePick(p.id); };
+      grid.appendChild(c);
+    });
+    renderPicks();
+  }
+
+  function togglePick(id) {
+    const i = picks.indexOf(id);
+    if (i >= 0) picks.splice(i, 1);
+    else if (picks.length < TEAM_MAX) picks.push(id);
+    else { toast('Three is the limit!'); return; }
+    renderTeamPick();
+  }
+
+  /* the chosen team stays visible even when the list below shows another region */
+  function renderPicks() {
+    $('team-picked').innerHTML = picks.length
+      ? picks.map(id => `<button class="pick-chip" data-id="${id}">${byId[id].name} ✕</button>`).join('')
+      : '';
+    $('team-picked').querySelectorAll('.pick-chip').forEach(b => {
+      b.onclick = () => { sClick(); togglePick(b.dataset.id); };
+    });
+    $('team-count').textContent = picks.length + '/' + TEAM_MAX;
+    $('team-go').disabled = picks.length === 0;
+  }
+
+  $('team-search').addEventListener('input', () => { team.search = $('team-search').value.trim(); renderTeamPick(); });
   $('team-back').onclick = () => { sClick(); renderHome(); show('home'); };
   $('team-go').onclick = () => { sClick(); startBattle(); };
 
@@ -851,7 +905,7 @@
   }
 
   function startBattle() {
-    const pool = learnedList();
+    const pool = battlePool();
     B.mine = picks.map(id => makeFighter(byId[id]));
     B.foe = pickRivalTeam(pool, B.mine).map(makeFighter);
     B.mi = 0; B.fi = 0; B.busy = false; B.berry = true; B.over = false;
