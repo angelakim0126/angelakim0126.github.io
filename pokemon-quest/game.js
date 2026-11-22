@@ -86,12 +86,33 @@
   const sFaint = () => [400, 330, 260, 190].forEach((f, i) => setTimeout(() => tone(f, .2, 'triangle', .06), i * 110));
   const sWin = () => [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => tone(f, .24, 'triangle', .07), i * 130));
   const sLearn = () => [523, 784].forEach((f, i) => setTimeout(() => tone(f, .18, 'sine', .07), i * 120));
+  const seq = (fs, gap, dur, type, vol) => fs.forEach((f, i) => setTimeout(() => tone(f, dur, type, vol), i * gap));
+
+  /* sounds for the attack animations in fx.js */
+  const FX_SOUNDS = {
+    whoosh: () => seq([420, 620], 50, .08, 'sine', .03),
+    whip: () => { tone(1500, .04, 'square', .04); setTimeout(() => tone(260, .09, 'sawtooth', .045), 40); },
+    zap: () => seq([900, 560, 1150, 480, 980], 38, .05, 'square', .03),
+    boom: () => { tone(110, .32, 'sawtooth', .06); tone(70, .38, 'square', .035); },
+    splash: () => seq([820, 600, 940, 520], 35, .06, 'sine', .04),
+    chomp: () => { tone(260, .06, 'square', .05); setTimeout(() => tone(190, .08, 'square', .05), 110); },
+    slash: () => seq([1250, 950, 720], 40, .05, 'sawtooth', .025),
+    rumble: () => seq([90, 70, 100, 60, 80], 85, .16, 'sawtooth', .05),
+    sparkle: () => seq([1300, 1650, 1950, 2300], 55, .07, 'triangle', .03),
+    wind: () => seq([300, 430, 360, 500], 90, .14, 'sine', .03),
+    beam: () => { tone(560, .45, 'sawtooth', .025); tone(840, .45, 'sine', .03); },
+    punch: () => tone(150, .1, 'square', .055),
+    charge: () => seq([300, 400, 500, 600, 700], 70, .08, 'sine', .03),
+    psy: () => seq([500, 700, 560, 760], 80, .12, 'sine', .035),
+    sound: () => seq([660, 880, 660, 990], 70, .1, 'triangle', .035)
+  };
+  if (window.FX) window.FX.setSound(k => { if (FX_SOUNDS[k]) FX_SOUNDS[k](); });
 
   /* =======================================================================
      save file
      ======================================================================= */
   const KEY = 'ipq_save_v1';
-  const blank = () => ({ learned: {}, quiz: {}, wins: 0, losses: 0, secret: null, chosen: {} });
+  const blank = () => ({ learned: {}, quiz: {}, wins: 0, losses: 0, secret: null, chosen: {}, quizAll: false });
   let S = blank();
   function load() {
     try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY)) || {}); }
@@ -251,7 +272,9 @@
 
     const canBattle = total >= 3;
     $('home-battle-btn').disabled = !canBattle;
-    $('home-quiz-all-btn').disabled = total < 4;
+    renderScope('home-scope');
+    $('home-quiz-all-btn').disabled = !S.quizAll && total < 4;
+    $('home-quiz-all-btn').textContent = S.quizAll ? '📋 Quiz me on every Pokemon' : '📋 Quiz me on everything I learned';
     $('home-battle-note').innerHTML = canBattle
       ? `<p class="sub">Record: <b>${S.wins}</b> wins · ${S.losses} losses</p>`
       : `<p class="sub">Learn <b>${3 - total}</b> more Pokemon to unlock battles.</p>`;
@@ -312,11 +335,13 @@
     });
     $('dex-count').textContent = `${got}/${list.length} ⭐`;
     const r = REGIONS.find(x => x.id === curRegion);
-    const best = S.quiz[curRegion] || 0;
+    const best = S.quiz[quizKey(curRegion)] || 0;
+    const locked = !S.quizAll && got < 4;
+    renderScope('dex-scope');
     $('dex-quiz-btn').textContent = `📋 Quiz me on ${r.name}`;
-    $('dex-quiz-btn').disabled = got < 4;
-    $('dex-quiz-note').innerHTML = got < 4
-      ? `<p class="sub">Learn <b>${4 - got}</b> more here and the quiz unlocks.</p>`
+    $('dex-quiz-btn').disabled = locked;
+    $('dex-quiz-note').innerHTML = locked
+      ? `<p class="sub">Learn <b>${4 - got}</b> more here, or switch to <b>🌍 All Pokemon</b>.</p>`
       : (best ? `<p class="sub">Your best: <b>${best}/10</b></p>` : '');
   }
   $('dex-back').onclick = () => { sClick(); renderHome(); show('home'); };
@@ -409,6 +434,8 @@
       </div>
 
       <div style="margin-top:16px">
+        <button class="big-btn" id="detail-quiz">📋 Quiz me on ${p.name}</button>
+        ${learned ? '' : `<p class="sub">Get ${monQuestions(p).length - 1} or more right and ${p.name} is learned ⭐</p>`}
         ${learned
           ? `<p class="sub"><b style="color:var(--good)">⭐ Learned!</b> You can battle with ${p.name}.</p>
              <button class="text-btn" id="detail-unlearn">I forgot this one</button>`
@@ -418,6 +445,7 @@
 
     wirePowers(p);
     $('detail-close').onclick = closeModal;
+    $('detail-quiz').onclick = () => { sClick(); closeModal(); startMonQuiz(id); };
     const learnBtn = $('detail-learn');
     if (learnBtn) learnBtn.onclick = () => {
       S.learned[id] = true; save(); sLearn(); closeModal();
@@ -437,18 +465,63 @@
   /* =======================================================================
      4. QUIZ
      ======================================================================= */
-  const Q = { pool: [], region: null, list: [], idx: 0, right: 0, streak: 0, best: 0, locked: false };
+  const Q = { mode: 'group', pool: [], region: null, target: null, key: '', n: 10,
+    list: [], idx: 0, right: 0, streak: 0, best: 0, locked: false };
   const QN = 10;
 
+  /* "Only ones I learned" or "All Pokemon" — Iris wanted to be able to quiz on
+     any Pokemon, not just the ones she has already marked as learned. The two
+     modes keep separate best scores so one doesn't overwrite the other. */
+  const quizKey = region => (region || 'all') + (S.quizAll ? ':every' : '');
+  function renderScope(id) {
+    const box = $(id);
+    box.innerHTML =
+      `<button class="scope-btn${S.quizAll ? '' : ' on'}" data-all="0">⭐ Only ones I learned</button>` +
+      `<button class="scope-btn${S.quizAll ? ' on' : ''}" data-all="1">🌍 All Pokemon</button>`;
+    box.querySelectorAll('.scope-btn').forEach(b => {
+      b.onclick = () => {
+        sClick(); S.quizAll = b.dataset.all === '1'; save();
+        if (id === 'dex-scope') renderDex(); else renderHome();
+      };
+    });
+  }
+
+  function resetQ() { Q.idx = 0; Q.right = 0; Q.streak = 0; Q.best = 0; Q.locked = false; }
+
   function startQuiz(region) {
-    const pool = region ? learnedIn(region) : learnedList();
+    const pool = S.quizAll
+      ? (region ? byRegion(region) : POKEMON.slice())
+      : (region ? learnedIn(region) : learnedList());
     if (pool.length < 4) { toast('Learn at least 4 Pokemon first!'); return; }
-    Q.pool = pool; Q.region = region; Q.idx = 0; Q.right = 0; Q.streak = 0; Q.best = 0; Q.locked = false;
+    Q.mode = 'group'; Q.pool = pool; Q.region = region; Q.target = null; Q.key = quizKey(region); Q.n = QN;
+    resetQ();
     Q.list = [];
-    for (let i = 0; i < QN; i++) Q.list.push(makeQuestion(pool, i));
-    $('quiz-title').textContent = region
+    for (let i = 0; i < Q.n; i++) Q.list.push(makeQuestion(pool, i));
+    $('quiz-title').textContent = (region
       ? '📋 ' + REGIONS.find(r => r.id === region).name + ' quiz'
-      : '📋 Everything quiz';
+      : '📋 Everything quiz') + (S.quizAll ? ' 🌍' : '');
+    show('quiz');
+    renderQuestion();
+  }
+
+  /* A quiz on ONE Pokemon, learned or not. Every question is about it; the
+     wrong answers come from the whole Pokedex. Miss at most one and it counts
+     as learned (Iris's rule), which also unlocks it for battles. */
+  function monQuestions(p) {
+    const others = POKEMON.filter(x => x.id !== p.id && x.name !== p.name);
+    const list = [buildQ('silhouette', p, others), buildQ('whichType', p, others)];
+    if (p.abilities && p.abilities.length) list.push(buildQ('ability', p, others));
+    list.push(buildQ('matchup', p, others));
+    if (nextEvo(p)) list.push(buildQ('evolve', p, others));
+    list.push(buildQ('name2pic', p, others), buildQ('typeName', p, others));
+    return list.filter(Boolean);
+  }
+  function startMonQuiz(id) {
+    const p = byId[id];
+    Q.mode = 'one'; Q.target = id; Q.region = curRegion; Q.pool = [p]; Q.key = '';
+    Q.list = monQuestions(p); Q.n = Q.list.length;
+    resetQ();
+    $('quiz-title').textContent = '📋 ' + p.name + ' quiz';
     show('quiz');
     renderQuestion();
   }
@@ -464,58 +537,65 @@
     return nxt ? nxt.name : null;
   }
 
+  const abName = a => a.indexOf('—') > 0 ? a.slice(0, a.indexOf('—')).trim() : a;
+
   function makeQuestion(pool, i) {
     let kinds = KINDS.slice();
     if (pool.length >= 6) kinds.push('matchup');
     if (pool.some(nextEvo)) kinds.push('evolve');
     // always start gently, then mix it up
     const kind = i === 0 ? 'pic2name' : choice(kinds);
-    const p = choice(pool);
-    const others = pool.filter(x => x.id !== p.id);
+    const p = kind === 'evolve' ? choice(pool.filter(nextEvo)) : choice(pool);
+    const others = pool.filter(x => x.id !== p.id && x.name !== p.name);
+    return buildQ(kind, p, others) || buildQ('pic2name', p, others);
+  }
 
+  /* one question of a given kind about Pokemon p; wrong answers come from `others` */
+  function buildQ(kind, p, others) {
     if (kind === 'whichType') {
       const right = choice(p.types);
       const wrongTypes = shuffle(Object.keys(TYPE_COLOR).filter(t => p.types.indexOf(t) < 0)).slice(0, 3);
       return { kind, p, answer: right, options: shuffle([right].concat(wrongTypes)) };
     }
     if (kind === 'matchup') {
-      const defender = choice(pool);
       const atkTypes = Object.keys(TYPE_COLOR);
-      const supers = atkTypes.filter(t => effectiveness(t, defender.types) >= 2);
-      const meh = atkTypes.filter(t => effectiveness(t, defender.types) < 2);
-      if (!supers.length) return makeQuestion(pool, 1);
+      const supers = atkTypes.filter(t => effectiveness(t, p.types) >= 2);
+      const meh = atkTypes.filter(t => effectiveness(t, p.types) < 2);
+      if (!supers.length) return null;
       const right = choice(supers);
-      return { kind, p: defender, answer: right, options: shuffle([right].concat(sample(meh, 3))) };
+      return { kind, p, answer: right, options: shuffle([right].concat(sample(meh, 3))) };
     }
     if (kind === 'evolve') {
-      const canEvolve = pool.filter(nextEvo);
-      const who = choice(canEvolve);
-      const right = nextEvo(who);
+      const right = nextEvo(p);
+      if (!right) return null;
       // wrong answers: other Pokemon names, never the right one
-      const wrong = sample(POKEMON.filter(x => x.name !== right && x.id !== who.id), 3).map(x => x.name);
-      return { kind, p: who, answer: right, options: shuffle([right].concat(wrong)) };
+      const wrong = sample(POKEMON.filter(x => x.name !== right && x.id !== p.id), 3).map(x => x.name);
+      return { kind, p, answer: right, options: shuffle([right].concat(wrong)) };
     }
     if (kind === 'ability') {
+      if (!p.abilities || !p.abilities.length) return null;
       const ab = choice(p.abilities);
-      const name = ab.indexOf('—') > 0 ? ab.slice(0, ab.indexOf('—')).trim() : ab;
+      const name = abName(ab);
       const desc = ab.indexOf('—') > 0 ? ab.slice(ab.indexOf('—') + 1).trim() : '';
-      return { kind, p, answer: p.name, abName: name, abDesc: desc, options: shuffle([p].concat(sample(others, 3))) };
+      // a wrong answer must not secretly have the same ability
+      const fair = others.filter(x => !(x.abilities || []).some(a => abName(a) === name));
+      return { kind, p, answer: p.name, abName: name, abDesc: desc, options: shuffle([p].concat(sample(fair, 3))) };
     }
     if (kind === 'typeName') return { kind, p, answer: p.name };
     return { kind, p, answer: p.name, options: shuffle([p].concat(sample(others, 3))) };
   }
 
   function quizHud() {
-    $('quiz-qnum').textContent = Math.min(Q.idx + 1, QN) + '/' + QN;
+    $('quiz-qnum').textContent = Math.min(Q.idx + 1, Q.n) + '/' + Q.n;
     $('quiz-right').textContent = Q.right;
     $('quiz-best').textContent = Q.best;
     $('quiz-streak').textContent = Q.streak > 1 ? '🔥 ' + Q.streak : '';
-    $('quiz-progress').style.width = (Q.idx / QN * 100) + '%';
+    $('quiz-progress').style.width = (Q.idx / Q.n * 100) + '%';
   }
 
   function renderQuestion() {
     quizHud();
-    if (Q.idx >= QN) { endQuiz(); return; }
+    if (Q.idx >= Q.n) { endQuiz(); return; }
     const q = Q.list[Q.idx];
     Q.locked = false;
     const card = $('quiz-card');
@@ -636,7 +716,8 @@
 
   function endQuiz() {
     $('quiz-progress').style.width = '100%';
-    const key = Q.region || 'all';
+    if (Q.mode === 'one') { endMonQuiz(); return; }
+    const key = Q.key;
     const prev = S.quiz[key] || 0;
     const isBest = Q.right > prev;
     if (isBest) { S.quiz[key] = Q.right; save(); }
@@ -645,7 +726,7 @@
     const stars = Q.right >= 10 ? '⭐⭐⭐⭐⭐' : Q.right >= 8 ? '⭐⭐⭐⭐' : Q.right >= 6 ? '⭐⭐⭐' : Q.right >= 4 ? '⭐⭐' : '⭐';
     $('quiz-card').innerHTML = `
       <p class="q-prompt">Quiz finished!</p>
-      <div style="font-size:2.6rem;font-weight:800;color:var(--accent)">${Q.right}/${QN}</div>
+      <div style="font-size:2.6rem;font-weight:800;color:var(--accent)">${Q.right}/${Q.n}</div>
       <div style="font-size:1.4rem;letter-spacing:3px;margin:6px 0">${stars}</div>
       <p class="sub">Longest streak: <b>${Q.best}</b>${isBest ? ' · <b style="color:var(--good)">New best score!</b>' : ` · best is ${S.quiz[key]}/10`}</p>
       <div style="margin-top:14px">
@@ -656,9 +737,35 @@
     $('quiz-home').onclick = quizExit;
   }
 
+  function endMonQuiz() {
+    const p = byId[Q.target], need = Q.n - 1;
+    const passed = Q.right >= need;
+    const already = !!S.learned[p.id];
+    if (passed && !already) { S.learned[p.id] = true; save(); }
+    if (passed) sWin(); else sGood();
+    const msg = passed
+      ? (already
+        ? `<b style="color:var(--good)">You really know ${p.name}! ⭐</b>`
+        : `<b style="color:var(--good)">⭐ ${p.name} is learned!</b><br>You can battle with it now.`)
+      : `Get <b>${need}</b> right to learn ${p.name}. You can do it!`;
+    $('quiz-card').innerHTML = `
+      <p class="q-prompt">${p.name} quiz finished!</p>
+      <div class="q-art">${pic(p, { className: 'bob' })}</div>
+      <div style="font-size:2.6rem;font-weight:800;color:var(--accent)">${Q.right}/${Q.n}</div>
+      <p class="sub" style="font-size:1.05rem">${msg}</p>
+      <div style="margin-top:14px">
+        <button class="big-btn${passed ? '' : ' green'}" id="quiz-again">${passed ? 'Again! 🔁' : 'Try again! 🔁'}</button>
+        <button class="text-btn" id="quiz-home">Back</button>
+      </div>`;
+    if (passed && !already) toast(`${p.name} learned! ⭐`);
+    $('quiz-again').onclick = () => startMonQuiz(Q.target);
+    $('quiz-home').onclick = quizExit;
+  }
+
   function quizExit() {
     sClick();
-    if (Q.region) { renderDex(); show('dex'); }
+    if (Q.mode === 'one') { renderDex(); show('dex'); openDetail(Q.target); }
+    else if (Q.region) { renderDex(); show('dex'); }
     else { renderHome(); show('home'); }
   }
   $('quiz-quit').onclick = quizExit;
@@ -836,13 +943,27 @@
     return (Math.random() < .7 ? scored[0] : choice(scored)).mv;
   }
 
+  /* Every move has its own look (fx.js) — Iris: "the battle needs to look like
+     it, like for Vine Whip, vines hit the other Pokemon". HP drops at the
+     moment the attack lands, and the turn waits for the animation to finish. */
+  function playMove(side, mv) {
+    const aEl = $(side === 'mine' ? 'my-fighter' : 'foe-fighter');
+    const dEl = $(side === 'mine' ? 'foe-fighter' : 'my-fighter');
+    try {
+      if (window.FX) return window.FX.play({ stage: document.querySelector('#screen-battle .battle-stage'), aEl, dEl, move: mv });
+    } catch (e) { }
+    animate(side, side === 'mine' ? 'attack-mine' : 'attack-foe');
+    return { hit: 420, end: 420 };
+  }
+
   function doTurn(side, mv, next) {
     const atkF = side === 'mine' ? myActive() : foeActive();
     const defF = side === 'mine' ? foeActive() : myActive();
     const who = side === 'mine' ? 'You' : 'Rival';
 
-    animate(side, side === 'mine' ? 'attack-mine' : 'attack-foe');
     log(`${who}: <b>${atkF.p.name}</b> used <span class="log-hit">${mv.name}</span>!`);
+    const fx = playMove(side, mv);
+    if (fx.quiet) animate(side, side === 'mine' ? 'attack-mine' : 'attack-foe');
 
     setTimeout(() => {
       const r = damage(atkF, defF, mv);
@@ -858,8 +979,8 @@
       setTimeout(() => {
         if (defF.hp <= 0) { faint(side === 'mine' ? 'foe' : 'mine', next); }
         else next();
-      }, 650);
-    }, 420);
+      }, Math.max(650, fx.end - fx.hit + 250));
+    }, fx.hit);
   }
 
   function faint(side, next) {

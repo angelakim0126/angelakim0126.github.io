@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   <title>Iris's Secret Pokemon Quest</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔴%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css?v=20260912c">
+  <link rel="stylesheet" href="styles.css?v=20261121a">
 </head>
 <body>
 
@@ -44,6 +44,7 @@
     <div class="section-title"><h2>Ready to rumble?</h2></div>
     <div class="center">
       <button id="home-battle-btn" class="big-btn blue">⚔️ Pokemon Battle</button>
+      <div class="scope-switch" id="home-scope"></div>
       <button id="home-quiz-all-btn" class="big-btn">📋 Quiz me on everything</button>
       <div id="home-battle-note"></div>
       <button id="home-secret-btn" class="text-btn">Change my secret word</button>
@@ -71,9 +72,10 @@
     <span class="tb-count" id="dex-count"></span>
   </div>
   <div class="wrap">
-    <p class="sub center" id="dex-hint">Tap a Pokemon to study its powers and abilities.</p>
+    <p class="sub center" id="dex-hint">Tap a Pokemon to study it, or to take a quiz on just that one.</p>
     <div class="grid g3" id="dex-grid" style="margin-top:12px"></div>
     <div class="center" style="margin-top:18px">
+      <div class="scope-switch" id="dex-scope"></div>
       <button id="dex-quiz-btn" class="big-btn">📋 Quiz me on Kanto</button>
       <div id="dex-quiz-note"></div>
     </div>
@@ -155,6 +157,7 @@
 <script src="dex-all.js?v=20260912c"></script>
 <script src="moves.js?v=20260912c"></script>
 <script src="art.js?v=20260912b"></script>
-<script src="game.js?v=20260913a"></script>
+<script src="fx.js?v=20261121a"></script>
+<script src="game.js?v=20261121a"></script>
 </body>
 </html>

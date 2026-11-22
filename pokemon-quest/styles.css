@@ -333,3 +333,28 @@ h3 { font-size: 1rem; font-weight: 800; color: var(--accent-2); }
   .fighter .critter-box { height: 100px; }
   .move-list { grid-template-columns: 1fr; }
 }
+
+/* ===== quiz: "only ones I learned" / "all Pokemon" switch ===== */
+.scope-switch {
+  display: flex; width: fit-content; max-width: 100%; gap: 4px; padding: 4px; margin: 10px auto 8px; border-radius: 999px;
+  background: #fff; border: 2.5px solid var(--line); box-shadow: 0 3px 10px rgba(60, 40, 120, .08);
+}
+.scope-btn {
+  cursor: pointer; border: none; border-radius: 999px; padding: 8px 14px; background: transparent;
+  font-weight: 800; font-size: .9rem; color: var(--ink-soft);
+}
+.scope-btn.on { background: var(--accent-2); color: #fff; }
+
+/* ===== attack animations (fx.js) ===== */
+.fx-layer { position: absolute; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; border-radius: inherit; }
+.fx-o { position: absolute; width: 0; height: 0; will-change: transform, opacity; }
+.fx-i { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); display: block; line-height: 1; }
+.fx-e { white-space: nowrap; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .2)); }
+.fx-orb { border-radius: 50%; background: radial-gradient(circle at 38% 35%, #fff 0 14%, var(--c) 48%); box-shadow: 0 0 12px 3px var(--c); }
+.fx-disc { border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, var(--c) 42%, transparent 70%); }
+.fx-ring { border-radius: 50%; border: 4px solid var(--c); box-shadow: 0 0 10px var(--c), inset 0 0 10px var(--c); }
+.fx-puff { border-radius: 50%; background: radial-gradient(circle, var(--c) 0 38%, transparent 70%); }
+.fx-beam { position: absolute; }
+.fx-svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.fx-flash { position: absolute; inset: 0; }
+.fx-copy .critter-box { width: 100%; height: 100%; }
